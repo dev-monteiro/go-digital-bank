@@ -143,4 +143,4 @@ Event
 }
 ```
 
-Finally, we need some way to know if the daily batches were processed so that we can trust the APIs to updated regarding the previous day. The documentation do have an event model for the batch processing but I couldn't find what is the link between the batches and the customers. For that, to add some logic complexity, I'll assume that every batch is meant to process a bunch of credit cards...
+Finally, we need some way to know if the daily batches were processed so that we can trust the APIs to updated regarding the previous day. The documentation do have an event model for the batch processing but I couldn't find what is the link between the batches and the customers. For that, to add some logic complexity, I'll assume that every batch is meant to process a bunch of credit cards.
