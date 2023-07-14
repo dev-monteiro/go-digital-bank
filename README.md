@@ -17,6 +17,61 @@ In resume, the challenge is to develop a credit card invoice system that seems t
 
 Lorem ipsum.
 
+
+## Front-End Contract
+
+Below, we can see screens from Nubank to displaying invoices info, in which we'll just worry about the info on the highlighted areas. The left and center ones refer to the current invoice screen in its two states: closed and open. When tapping on the invoices summary button, the user is forwarded to the right screen, which starts showing the current invoice entries and can be swiped to select the other ones.
+
+{screens}
+
+Our system needs to provides an API that allows the building of these screens (at least for the highlighted areas). This way, for the current invoice info, we can define the following endpoint:
+
+Endpoint
+```
+GET {host}/invoices/current?customerId={customerId}
+```
+
+Response Body
+```json
+{
+    "id": "abc-123-def",
+    "statusLabel": "Closed|Current",
+    "amount": 1234.56,
+    "closingDate": "APR 13"
+}
+```
+
+As for the invoice summary, we can define the following one. It worth notices that this screen sample doesn't have an example of a transaction with installments, in which the entry amount would refer to that month installment and additional info would append the entry description in this way: "Some purchase with installments  3/6".
+
+Endpoint
+```
+GET {host}/invoices/summary/{invoiceId}
+```
+
+Response Body
+```json
+{
+    "id": "abc-123-def",
+    "refMonthLabel": "NOV",
+    "amount": 1675.55,
+    "dueDate": "NOV 8",
+    "closingDate": "NOV 1",
+    "entries": [
+        {
+            "date": "OCT 24",
+            "description": "Taxi SP",
+            "amount": 56.54
+        },
+        {
+            "date": "OCT 27",
+            "description": "Amazon 3/6",
+            "amount": 111.11
+        }
+    ]
+}
+```
+
+
 ## Core Banking Contract
 
 As mentioned, the development should be made on top of some off-the-shelf core banking system, so let's define the API and events contracts for the latter. we'll take as reference the documentation provided by [Dock](https://lighthouse.dock.tech), a common vendor of this kind of system in Brazil. Also, for simplicity, let's not worry about some common API aspects like authentication and pagination for now.
