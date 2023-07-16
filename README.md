@@ -17,14 +17,17 @@ In resume, the challenge is to develop a credit card invoice system that seems t
 
 Lorem ipsum.
 
+## Architecture
+
+![plot](./images/arch-diag.png)
 
 ## Front-End Contract
 
-Below, we can see screens from Nubank to displaying invoices info, in which we'll just worry about the info on the highlighted areas. The left and center ones refer to the current invoice screen in its two states: closed and open. When tapping on the invoices summary button, the user is forwarded to the right screen, which starts showing the current invoice entries and can be swiped to select the other ones.
+The contract should provide data to fill info on these screens:
 
-{screens}
+![plot](./images/screens.png)
 
-Our system needs to provides an API that allows the building of these screens (at least for the highlighted areas). This way, for the current invoice info, we can define the following endpoint:
+For the current invoice info:
 
 Endpoint
 ```
@@ -41,7 +44,7 @@ Response Body
 }
 ```
 
-As for the invoice summary, we can define the following one. It worth notices that this screen sample doesn't have an example of a transaction with installments, in which the entry amount would refer to that month installment and additional info would append the entry description in this way: "Some purchase with installments  3/6".
+For the invoice summary info:
 
 Endpoint
 ```
@@ -74,30 +77,28 @@ Response Body
 
 ## Core Banking Contract
 
-As mentioned, the development should be made on top of some off-the-shelf core banking system, so let's define the API and events contracts for the latter. we'll take as reference the documentation provided by [Dock](https://lighthouse.dock.tech), a common vendor of this kind of system in Brazil. Also, for simplicity, let's not worry about some common API aspects like authentication and pagination for now.
-
-First, we need a way to query the invoices settled by the core banking system for a given customer. For that, we'll use the API defined below based on [this one](https://lighthouse.dock.tech/docs/pier-pro-api-reference/1b0ec155a9966-list-of-invoices):
+For the invoices info:
 
 Endpoint
 ```
-GET {host}/invoices?customerId=:customerId
+GET {host}/invoices?creditAccountId={creditAccountId}
 ```
 
-Response
+Response Body
 ```json
 {
-    "customerId": 123,
-    "invoiceId": 1234,
+    "creditAccountId": 123,
     "processingSituation": "CLOSED|OPEN|FUTURE",
-    "amount": 1234.56,
-    "closingDate": "2023-08-05",
+    "isPaymentDone": true,
     "dueDate": "2023-08-15",
     "actualDueDate": "2023-08-15",
-    "isPaymentDone": true
+    "closingDate": "2023-08-05",
+    "totalAmount": 1234.56,
+    "invoiceId": 1234
 }
 ```
 
-Then, we need a way to query a specific invoice and get all its entries. For that, we'll use the API defined below based on [this one](https://lighthouse.dock.tech/docs/pier-pro-api-reference/974ef197cb242-retrieve-the-invoice-of-a-client):
+For the invoices entries info:
 
 Endpoint
 ```
@@ -128,7 +129,7 @@ Response
 }
 ```
 
-Also, we need to receive transactional events happening throughout the day. The documentation describes [some types of them](https://lighthouse.dock.tech/docs/pier-pro-api-reference/1729e0328e134-events#purchase-events) (seemed to be divided by the processing step), but they are very similar, so we're gonna use only one event model and distinct them by status:
+For the purchases events:
 
 Event
 ```json
@@ -142,5 +143,3 @@ Event
     "status": "PENDING|CLEARED|PROCESSED|CANCELED"
 }
 ```
-
-Finally, we need some way to know if the daily batches were processed so that we can trust the APIs to updated regarding the previous day. The documentation do have an event model for the batch processing but I couldn't find what is the link between the batches and the customers. For that, to add some logic complexity, I'll assume that every batch is meant to process a bunch of credit cards.
