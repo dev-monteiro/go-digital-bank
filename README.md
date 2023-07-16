@@ -19,6 +19,8 @@ Lorem ipsum.
 
 ## Architecture
 
+Using LocalStack open source features:
+
 ![plot](./images/arch-diag.png)
 
 ## Front-End Contract
@@ -37,7 +39,7 @@ GET {host}/invoices/current?customerId={customerId}
 Response Body
 ```json
 {
-    "id": "abc-123-def",
+    "id": "xyz-789-mnp",
     "statusLabel": "Closed|Current",
     "amount": 1234.56,
     "closingDate": "APR 13"
@@ -54,7 +56,7 @@ GET {host}/invoices/summary/{invoiceId}
 Response Body
 ```json
 {
-    "id": "abc-123-def",
+    "id": "xyz-789-mnp",
     "refMonthLabel": "NOV",
     "amount": 1675.55,
     "dueDate": "NOV 8",
@@ -102,20 +104,20 @@ For the invoices entries info:
 
 Endpoint
 ```
-GET {host}/invoices/:invoiceId?customerId=:customerId
+GET {host}/invoices/:invoiceId?creditAccountId={creditAccountId}
 ```
 
 Response
 ```json
 {
-    "customerId": 123,
-    "invoiceId": 1234,
+    "creditAccountId": 123,
     "processingSituation": "CLOSED|OPEN|FUTURE",
-    "amount": 1234.56,
-    "closingDate": "2023-08-05",
+    "isPaymentDone": true,
     "dueDate": "2023-08-15",
     "actualDueDate": "2023-08-15",
-    "isPaymentDone": true,
+    "closingDate": "2023-08-05",
+    "totalAmount": 1234.56,
+    "invoiceId": 12345,
     "entries": [
         {
             "transactionId": 12345,
@@ -134,12 +136,36 @@ For the purchases events:
 Event
 ```json
 {
-    "transactionId": 12345,
-    "customerId": 123,
-    "transactionDateTime": "2023-05-31T09:54:30",
-    "totalAmount": 66.03,
+    "purchaseId": 123456,
+    "creditAccountId": 123,
+    "purchaseDateTime": "2023-05-31T09:54:30",
+    "amount": 66.03,
     "numInstallments": 3,
     "merchantDescription": "DFV Digital",
     "status": "PENDING|CLEARED|PROCESSED|CANCELED"
+}
+```
+
+For the batch processing events:
+
+Event
+```json
+{
+    "batchId": 789,
+    "lastProcessingDateTime": "2023-06-01T02:33:44"
+}
+```
+
+
+## Customer Internal Service Contract
+
+For the customer registration on credit card context:
+
+Event
+```json
+{
+    "customerId": "abc-123-def",
+    "coreBankingCreditId": 123,
+    "coreBankingBatchId": 789
 }
 ```
