@@ -1,0 +1,9 @@
+services:
+  credit-invoice:
+    build: ./credit-invoice
+    ports:
+      - "8096:80"
+  core-banking-mock:
+    build: ./core-banking-mock
+    ports:
+      - "8080:80"
