@@ -25,7 +25,7 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	creditAccountId := request.Form.Get("creditAccountId")
 
-	fmt.Println(creditAccountId)
+	fmt.Println("CreditAccountId = " + creditAccountId)
 	if creditAccountId != "123" {
 		resWriter.WriteHeader(http.StatusBadRequest)
 		return

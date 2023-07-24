@@ -1,11 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
+
+var db *sql.DB
 
 type CurrentInvoiceResponse struct {
 	Id          string
@@ -32,25 +38,33 @@ type CoreBankingInvoiceListResponse struct {
 func getCurrentInvoice(resWriter http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	customerId := request.Form.Get("customerId")
+	fmt.Println("CustomerId = " + customerId)
 
-	if customerId != "abc-123-def" {
+	query := "select credit_account_id from customer_credentials where customer_id = '" + customerId + "';"
+	fmt.Println("Query = " + query)
+
+	row := db.QueryRow(query)
+	var creditAccountId int
+	err := row.Scan(&creditAccountId)
+
+	if err != nil {
 		resWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println(customerId)
-	cbListResWrapper, err := http.Get("http://core-banking-mock/invoices?creditAccountId=123")
+	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(creditAccountId)
+	fmt.Println("Url = " + url)
+
+	cbListResWrapper, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err.Error())
 		resWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(cbListResWrapper)
 
 	var cbListRes CoreBankingInvoiceListResponse
 	json.NewDecoder(cbListResWrapper.Body).Decode(&cbListRes)
 	cbRes := cbListRes.Invoices[0]
-	fmt.Println(cbRes)
 
 	response := CurrentInvoiceResponse{
 		Id:          strconv.Itoa(cbRes.InvoiceId),
@@ -61,6 +75,19 @@ func getCurrentInvoice(resWriter http.ResponseWriter, request *http.Request) {
 
 	resWriter.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(resWriter).Encode(response)
+}
+
+func init() {
+	time.Sleep(2 * time.Second)
+
+	var err error
+	db, err = sql.Open("mysql", "root:root@tcp(mysql)/credit_invoice")
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Database connected.")
+	}
 }
 
 func main() {
