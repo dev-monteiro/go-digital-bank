@@ -7,6 +7,8 @@ services:
     build: ./core-banking-mock
     ports:
       - "8080:80"
+  producer_mock:
+    build: ./producer-mock
   mysql:
     image: mysql:8.0
     environment:
@@ -17,6 +19,8 @@ services:
     volumes:
       - mysql_vol:/var/lib/mysql
       - ./db-scripts:/docker-entrypoint-initdb.d
+  rabbitmq:
+    image: rabbitmq:3.12
 
 volumes:
   mysql_vol:
