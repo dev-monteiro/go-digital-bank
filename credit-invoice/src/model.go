@@ -1,0 +1,23 @@
+package main
+
+type CurrentInvoiceResponse struct {
+	Id          string
+	StatusLabel string
+	Amount      float32
+	ClosingDate string
+}
+
+type CoreBankingInvoiceResponse struct {
+	CreditAccountId     int32
+	ProcessingSituation string
+	IsPaymentDone       bool
+	DueDate             string
+	ActualDueDate       string
+	ClosingDate         string
+	TotalAmount         float32
+	InvoiceId           int
+}
+
+type CoreBankingInvoiceListResponse struct {
+	Invoices []CoreBankingInvoiceResponse
+}
