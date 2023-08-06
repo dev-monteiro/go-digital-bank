@@ -1,45 +1,50 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	rabbitmq "github.com/rabbitmq/amqp091-go"
 )
 
 type Listener struct {
-	Conn *rabbitmq.Connection
-	Ch   *rabbitmq.Channel
+	conn  *rabbitmq.Connection
+	chann *rabbitmq.Channel
+	repo  PurchaseRepo
 }
 
-func NewListener() Listener {
-	var list Listener
-	var err error
-
-	list.Conn, err = rabbitmq.Dial("amqp://guest:guest@rabbitmq")
+func NewListener(repo PurchaseRepo) Listener {
+	conn, err := rabbitmq.Dial("amqp://guest:guest@rabbitmq")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	list.Ch, err = list.Conn.Channel()
+	chann, err := conn.Channel()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	que, err := list.Ch.QueueDeclare("purchases", false, false, false, false, nil)
-	msgCh, err := list.Ch.Consume(que.Name, "", true, false, false, false, nil)
+	que, err := chann.QueueDeclare("purchases", false, false, false, false, nil)
+	msgCh, err := chann.Consume(que.Name, "", true, false, false, false, nil)
 
 	go func() {
 		for msg := range msgCh {
-			fmt.Println("Message received: " + string(msg.Body))
+			purchase := Purchase{}
+			json.Unmarshal(msg.Body, &purchase)
+			repo.save(purchase)
 		}
 	}()
 
 	fmt.Println("Listener set up.")
-	return list
+	return Listener{
+		conn:  conn,
+		chann: chann,
+		repo:  repo,
+	}
 }
 
 func (lis Listener) Close() {
-	lis.Conn.Close()
-	lis.Ch.Close()
+	lis.conn.Close()
+	lis.chann.Close()
 	fmt.Println("Listener cleaned up.")
 }

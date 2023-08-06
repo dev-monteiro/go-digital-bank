@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"time"
 
 	rabbitmq "github.com/rabbitmq/amqp091-go"
@@ -43,16 +44,19 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	for i := 1; i <= 20; i++ {
-		time.Sleep(1 * time.Second)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	time.Sleep(3 * time.Second)
+	for i := 1; i <= 60; i++ {
+		time.Sleep(3 * time.Second)
 
 		event := PurchaseEvent{
 			PurchaseId:          i,
 			CreditAccountId:     123,
-			PurchaseDateTime:    "2023-07-01T09:00:00",
-			Amount:              19.99,
+			PurchaseDateTime:    time.Now().String(),
+			Amount:              float32(r.Intn(10000) / 100),
 			NumInstallments:     1,
-			MerchantDescription: "Starbucks",
+			MerchantDescription: "Acme Shop",
 			Status:              "APPROVED",
 		}
 		body, err := json.Marshal(event)

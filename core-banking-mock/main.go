@@ -34,11 +34,11 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 
 	invoice := InvoiceResponse{
 		CreditAccountId:     123,
-		ProcessingSituation: "CLOSED",
+		ProcessingSituation: "OPEN",
 		IsPaymentDone:       false,
-		DueDate:             "2023-08-15",
-		ActualDueDate:       "2023-08-15",
-		ClosingDate:         "2023-08-05",
+		DueDate:             "2023-08-20",
+		ActualDueDate:       "2023-08-21",
+		ClosingDate:         "2023-08-15",
 		TotalAmount:         1234.56,
 		InvoiceId:           1234,
 	}

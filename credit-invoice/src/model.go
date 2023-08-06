@@ -21,3 +21,11 @@ type CoreBankingInvoiceResponse struct {
 type CoreBankingInvoiceListResponse struct {
 	Invoices []CoreBankingInvoiceResponse
 }
+
+type Purchase struct {
+	CreditAccountId     int
+	PurchaseDateTime    string
+	Amount              float32
+	NumInstallments     int
+	MerchantDescription string
+}

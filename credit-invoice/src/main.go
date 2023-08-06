@@ -12,11 +12,14 @@ func init() {
 }
 
 func main() {
-	listener := NewListener()
+	credentialRepo := NewCredentialRepo()
+	purchaseRepo := NewPurchaseRepo()
+
+	listener := NewListener(purchaseRepo)
 	defer listener.Close()
 
-	controller := NewController()
-	defer controller.Close()
+	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
+	controller := NewController(invoiceServ)
 
 	http.HandleFunc("/invoices/current", controller.getCurrentInvoice)
 
