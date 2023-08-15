@@ -11,3 +11,15 @@ services:
     build: ./producer-mock
   rabbitmq:
     image: rabbitmq:3.12
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+      - "4510-4559:4510-4559"
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "$PWD/script/init.sh:/etc/localstack/init/ready.d/init.sh"

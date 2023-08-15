@@ -14,10 +14,10 @@ func NewController(serv InvoiceService) Controller {
 	return Controller{serv: serv}
 }
 
-func (cont Controller) getCurrentInvoice(resWr http.ResponseWriter, req *http.Request) {
+func (cont *Controller) getCurrentInvoice(resWr http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	customerId := req.Form.Get("customerId")
-	fmt.Println("CustomerId = " + customerId)
+	fmt.Println("customerId: " + customerId)
 
 	currentInvoice, err := cont.serv.getCurrentInvoice(customerId)
 	if err != nil {

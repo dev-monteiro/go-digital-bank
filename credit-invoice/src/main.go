@@ -8,15 +8,17 @@ import (
 )
 
 func init() {
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 }
 
 func main() {
-	credentialRepo := NewCredentialRepo()
-	purchaseRepo := NewPurchaseRepo()
+	dynamoDB := NewDynamoDbClient()
 
-	listener := NewListener(purchaseRepo)
-	defer listener.Close()
+	credentialRepo := NewCredentialRepo(dynamoDB)
+	purchaseRepo := NewPurchaseRepo(dynamoDB)
+
+	//listener := NewListener(purchaseRepo)
+	//defer listener.Close()
 
 	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
 	controller := NewController(invoiceServ)

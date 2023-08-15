@@ -1,27 +1,48 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+)
 
 type CredentialRepo struct {
-	table map[string]int
+	dynamoDB *dynamodb.DynamoDB
 }
 
-func NewCredentialRepo() CredentialRepo {
-	table := make(map[string]int)
-	bootstrap(table)
-	return CredentialRepo{table: table}
+func NewCredentialRepo(dynamoDB *dynamodb.DynamoDB) CredentialRepo {
+	return CredentialRepo{dynamoDB: dynamoDB}
 }
 
-func (repo CredentialRepo) getCreditAccountId(customerId string) (int, error) {
-	creditAccountId, exists := repo.table[customerId]
+func (repo *CredentialRepo) getCreditAccountId(customerId string) (int, error) {
+	output, err := repo.dynamoDB.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String("customer-credentials"),
+		Key: map[string]*dynamodb.AttributeValue{
+			"customerId": {
+				S: aws.String(customerId),
+			},
+		},
+	})
 
-	if !exists {
-		return 0, errors.New("not found")
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
 	}
 
-	return creditAccountId, nil
-}
+	if output.Item == nil {
+		fmt.Println("Not found.")
+		return 0, errors.New("Not found.")
+	}
 
-func bootstrap(table map[string]int) {
-	table["abc-123-def"] = 123
+	credential := CustomerCredential{}
+	err = dynamodbattribute.UnmarshalMap(output.Item, &credential)
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	return credential.CreditAccountId, nil
 }

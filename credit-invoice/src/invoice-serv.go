@@ -19,7 +19,7 @@ func NewInvoiceService(credentialRepo CredentialRepo, purchaseRepo PurchaseRepo)
 	}
 }
 
-func (serv InvoiceService) getCurrentInvoice(customerId string) (*CurrentInvoiceResponse, error) {
+func (serv *InvoiceService) getCurrentInvoice(customerId string) (*CurrentInvoiceResponse, error) {
 	creditAccountId, err := serv.credentialRepo.getCreditAccountId(customerId)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (serv InvoiceService) getCurrentInvoice(customerId string) (*CurrentInvoice
 	return &response, nil
 }
 
-func (serv InvoiceService) updateAmount(creditAccountId int, currentAmount float32) float32 {
+func (serv *InvoiceService) updateAmount(creditAccountId int, currentAmount float32) float32 {
 	purchases, err := serv.purchaseRepo.findAllByCreditAccountId(creditAccountId)
 
 	if err != nil {

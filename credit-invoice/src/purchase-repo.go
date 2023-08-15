@@ -3,17 +3,20 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 type PurchaseRepo struct {
-	table map[int][]Purchase
+	table    map[int][]Purchase
+	dynamoDB *dynamodb.DynamoDB
 }
 
-func NewPurchaseRepo() PurchaseRepo {
-	return PurchaseRepo{table: make(map[int][]Purchase)}
+func NewPurchaseRepo(dynamoDB *dynamodb.DynamoDB) PurchaseRepo {
+	return PurchaseRepo{table: make(map[int][]Purchase), dynamoDB: dynamoDB}
 }
 
-func (repo PurchaseRepo) save(purchase Purchase) {
+func (repo *PurchaseRepo) save(purchase Purchase) {
 	_, exists := repo.table[purchase.CreditAccountId]
 
 	if exists {
@@ -24,7 +27,7 @@ func (repo PurchaseRepo) save(purchase Purchase) {
 	fmt.Println("Saved on repo.")
 }
 
-func (repo PurchaseRepo) findAllByCreditAccountId(creditAccountId int) ([]Purchase, error) {
+func (repo *PurchaseRepo) findAllByCreditAccountId(creditAccountId int) ([]Purchase, error) {
 	purchases, exists := repo.table[creditAccountId]
 
 	if exists {

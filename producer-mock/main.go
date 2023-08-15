@@ -21,7 +21,7 @@ type PurchaseEvent struct {
 }
 
 func main() {
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 
 	conn, err := rabbitmq.Dial("amqp://guest:guest@rabbitmq")
 	checkError(err)

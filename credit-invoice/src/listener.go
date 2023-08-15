@@ -43,7 +43,7 @@ func NewListener(repo PurchaseRepo) Listener {
 	}
 }
 
-func (lis Listener) Close() {
+func (lis *Listener) Close() {
 	lis.conn.Close()
 	lis.chann.Close()
 	fmt.Println("Listener cleaned up.")
