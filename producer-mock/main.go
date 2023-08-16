@@ -1,13 +1,15 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 	"time"
 
-	rabbitmq "github.com/rabbitmq/amqp091-go"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
 type PurchaseEvent struct {
@@ -23,35 +25,34 @@ type PurchaseEvent struct {
 func main() {
 	time.Sleep(20 * time.Second)
 
-	conn, err := rabbitmq.Dial("amqp://guest:guest@rabbitmq")
-	checkError(err)
-	defer conn.Close()
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewStaticCredentials("test", "test", ""),
+		Endpoint:    aws.String("http://localstack:4566"),
+	})
 
-	cha, err := conn.Channel()
-	checkError(err)
-	defer cha.Close()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Connected to SQS.")
+	}
 
-	que, err := cha.QueueDeclare(
-		"purchases",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	checkError(err)
+	sqsClient := sqs.New(sess)
+	queueName := "purchases-queue"
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
+		QueueName: &queueName,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	time.Sleep(3 * time.Second)
-	for i := 1; i <= 60; i++ {
+	for i := 0; i < 50; i++ {
 		time.Sleep(3 * time.Second)
 
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		event := PurchaseEvent{
-			PurchaseId:          i,
+			PurchaseId:          1,
 			CreditAccountId:     123,
 			PurchaseDateTime:    time.Now().String(),
 			Amount:              float32(r.Intn(10000) / 100),
@@ -60,27 +61,13 @@ func main() {
 			Status:              "APPROVED",
 		}
 		body, err := json.Marshal(event)
-		checkError(err)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-		err = cha.PublishWithContext(
-			ctx,
-			"",
-			que.Name,
-			false,
-			false,
-			rabbitmq.Publishing{
-				ContentType: "application/json",
-				Body:        body,
-			},
-		)
-		checkError(err)
-		fmt.Println("Sent: " + string(body))
-	}
-
-}
-
-func checkError(err error) {
-	if err != nil {
-		fmt.Println(err)
+		sqsClient.SendMessage(&sqs.SendMessageInput{
+			MessageBody: aws.String(string(body)),
+			QueueUrl:    queueUrlResp.QueueUrl,
+		})
 	}
 }

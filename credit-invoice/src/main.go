@@ -7,18 +7,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func init() {
-	time.Sleep(20 * time.Second)
-}
-
+// TODO: use some real logging library
+// TODO: use best practices for constants and env variables
 func main() {
-	dynamoDB := NewDynamoDbClient()
+	time.Sleep(20 * time.Second)
 
-	credentialRepo := NewCredentialRepo(dynamoDB)
-	purchaseRepo := NewPurchaseRepo(dynamoDB)
+	dynamoClient := NewDynamoDbClient()
+	sqsClient := NewSqsClient()
 
-	//listener := NewListener(purchaseRepo)
-	//defer listener.Close()
+	credentialRepo := NewCredentialRepo(dynamoClient)
+	purchaseRepo := NewPurchaseRepo(dynamoClient)
+
+	NewListener(sqsClient, purchaseRepo)
 
 	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
 	controller := NewController(invoiceServ)

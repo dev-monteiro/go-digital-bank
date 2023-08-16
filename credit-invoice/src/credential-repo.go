@@ -19,7 +19,7 @@ func NewCredentialRepo(dynamoDB *dynamodb.DynamoDB) CredentialRepo {
 
 func (repo *CredentialRepo) getCreditAccountId(customerId string) (int, error) {
 	output, err := repo.dynamoDB.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String("customer-credentials"),
+		TableName: aws.String("customer-credentials-table"),
 		Key: map[string]*dynamodb.AttributeValue{
 			"customerId": {
 				S: aws.String(customerId),

@@ -3,48 +3,54 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
-	rabbitmq "github.com/rabbitmq/amqp091-go"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
 type Listener struct {
-	conn  *rabbitmq.Connection
-	chann *rabbitmq.Channel
-	repo  PurchaseRepo
+	sqsClient *sqs.SQS
+	repo      PurchaseRepo
 }
 
-func NewListener(repo PurchaseRepo) Listener {
-	conn, err := rabbitmq.Dial("amqp://guest:guest@rabbitmq")
+func NewListener(sqsClient *sqs.SQS, repo PurchaseRepo) Listener {
+	queueName := "purchases-queue"
+
+	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
+		QueueName: &queueName,
+	})
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	chann, err := conn.Channel()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	que, err := chann.QueueDeclare("purchases", false, false, false, false, nil)
-	msgCh, err := chann.Consume(que.Name, "", true, false, false, false, nil)
-
+	// TODO: make a pool of goroutines to handle more than 10 messages concurrently
+	// TODO: create some safe exiting mechanism for the main goroutine
 	go func() {
-		for msg := range msgCh {
-			purchase := Purchase{}
-			json.Unmarshal(msg.Body, &purchase)
-			repo.save(purchase)
+		for {
+			output, err := sqsClient.ReceiveMessage(&sqs.ReceiveMessageInput{
+				QueueUrl:            queueUrlResp.QueueUrl,
+				MaxNumberOfMessages: aws.Int64(10),
+			})
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			if len(output.Messages) == 0 {
+				time.Sleep(1 * time.Second)
+			}
+
+			for _, msg := range output.Messages {
+				pur := Purchase{}
+				json.Unmarshal([]byte(*msg.Body), &pur)
+				repo.save(pur)
+			}
 		}
 	}()
 
 	fmt.Println("Listener set up.")
 	return Listener{
-		conn:  conn,
-		chann: chann,
-		repo:  repo,
+		sqsClient: sqsClient,
+		repo:      repo,
 	}
-}
-
-func (lis *Listener) Close() {
-	lis.conn.Close()
-	lis.chann.Close()
-	fmt.Println("Listener cleaned up.")
 }
