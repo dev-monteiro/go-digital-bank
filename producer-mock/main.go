@@ -48,11 +48,11 @@ func main() {
 	}
 
 	for i := 0; i < 50; i++ {
-		time.Sleep(3 * time.Second)
+		time.Sleep(2 * time.Second)
 
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		event := PurchaseEvent{
-			PurchaseId:          1,
+			PurchaseId:          i,
 			CreditAccountId:     123,
 			PurchaseDateTime:    time.Now().String(),
 			Amount:              float32(r.Intn(10000) / 100),
@@ -65,9 +65,15 @@ func main() {
 			fmt.Println(err)
 		}
 
-		sqsClient.SendMessage(&sqs.SendMessageInput{
+		output, err := sqsClient.SendMessage(&sqs.SendMessageInput{
 			MessageBody: aws.String(string(body)),
 			QueueUrl:    queueUrlResp.QueueUrl,
 		})
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(output)
+		}
 	}
 }

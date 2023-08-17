@@ -9,19 +9,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type CredentialRepo struct {
-	dynamoDB *dynamodb.DynamoDB
+type CredentialRepository struct {
+	dynamoCli *dynamodb.DynamoDB
 }
 
-func NewCredentialRepo(dynamoDB *dynamodb.DynamoDB) CredentialRepo {
-	return CredentialRepo{dynamoDB: dynamoDB}
+func NewCredentialRepository(dynamoCli *dynamodb.DynamoDB) CredentialRepository {
+	return CredentialRepository{dynamoCli: dynamoCli}
 }
 
-func (repo *CredentialRepo) getCreditAccountId(customerId string) (int, error) {
-	output, err := repo.dynamoDB.GetItem(&dynamodb.GetItemInput{
+func (repo *CredentialRepository) getCreditAccountId(customerId string) (int, error) {
+	output, err := repo.dynamoCli.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String("customer-credentials-table"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"customerId": {
+			"CustomerId": {
 				S: aws.String(customerId),
 			},
 		},

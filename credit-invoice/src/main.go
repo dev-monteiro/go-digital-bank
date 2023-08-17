@@ -12,13 +12,13 @@ import (
 func main() {
 	time.Sleep(20 * time.Second)
 
-	dynamoClient := NewDynamoDbClient()
-	sqsClient := NewSqsClient()
+	dynamoCli := NewDynamoClient()
+	sqsCli := NewSqsClient()
 
-	credentialRepo := NewCredentialRepo(dynamoClient)
-	purchaseRepo := NewPurchaseRepo(dynamoClient)
+	credentialRepo := NewCredentialRepository(dynamoCli)
+	purchaseRepo := NewPurchaseRepository(dynamoCli)
 
-	NewListener(sqsClient, purchaseRepo)
+	NewListener(sqsCli, purchaseRepo)
 
 	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
 	controller := NewController(invoiceServ)

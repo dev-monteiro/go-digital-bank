@@ -8,11 +8,11 @@ import (
 )
 
 type InvoiceService struct {
-	credentialRepo CredentialRepo
-	purchaseRepo   PurchaseRepo
+	credentialRepo CredentialRepository
+	purchaseRepo   PurchaseRepository
 }
 
-func NewInvoiceService(credentialRepo CredentialRepo, purchaseRepo PurchaseRepo) InvoiceService {
+func NewInvoiceService(credentialRepo CredentialRepository, purchaseRepo PurchaseRepository) InvoiceService {
 	return InvoiceService{
 		credentialRepo: credentialRepo,
 		purchaseRepo:   purchaseRepo,
@@ -46,6 +46,7 @@ func (serv *InvoiceService) updateAmount(creditAccountId int, currentAmount floa
 	purchases, err := serv.purchaseRepo.findAllByCreditAccountId(creditAccountId)
 
 	if err != nil {
+		fmt.Println(err)
 		return currentAmount
 	}
 

@@ -28,6 +28,7 @@ type CoreBankingInvoiceListResponse struct {
 }
 
 type Purchase struct {
+	PurchaseId          int
 	CreditAccountId     int
 	PurchaseDateTime    string
 	Amount              float32

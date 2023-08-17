@@ -18,7 +18,7 @@ func NewAwsConfig() *aws.Config {
 	}
 }
 
-func NewDynamoDbClient() *dynamodb.DynamoDB {
+func NewDynamoClient() *dynamodb.DynamoDB {
 	sess, err := session.NewSession(NewAwsConfig())
 
 	if err != nil {

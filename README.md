@@ -1,4 +1,4 @@
-# Go Account Fee
+# Go Digital Bank
 
 This is a personal project to practice what I've learned about Golang so far (and learn a lot more). The goal is to implement some enterprise-like features in a fictional digital bank context in a way that I will be able to:
 - have a taste of what is like working with Go on a real-life project;

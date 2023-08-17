@@ -11,10 +11,10 @@ import (
 
 type Listener struct {
 	sqsClient *sqs.SQS
-	repo      PurchaseRepo
+	repo      PurchaseRepository
 }
 
-func NewListener(sqsClient *sqs.SQS, repo PurchaseRepo) Listener {
+func NewListener(sqsClient *sqs.SQS, repo PurchaseRepository) Listener {
 	queueName := "purchases-queue"
 
 	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
@@ -41,9 +41,20 @@ func NewListener(sqsClient *sqs.SQS, repo PurchaseRepo) Listener {
 			}
 
 			for _, msg := range output.Messages {
-				pur := Purchase{}
-				json.Unmarshal([]byte(*msg.Body), &pur)
-				repo.save(pur)
+				if aws.StringValue(msg.Body) != "" {
+					pur := Purchase{}
+					json.Unmarshal([]byte(*msg.Body), &pur)
+					fmt.Println(pur)
+					repo.save(pur)
+
+					_, err = sqsClient.DeleteMessage(&sqs.DeleteMessageInput{
+						QueueUrl:      queueUrlResp.QueueUrl,
+						ReceiptHandle: msg.ReceiptHandle,
+					})
+					if err != nil {
+						fmt.Println(err)
+					}
+				}
 			}
 		}
 	}()
