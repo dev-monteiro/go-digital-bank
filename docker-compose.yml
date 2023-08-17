@@ -9,6 +9,8 @@ services:
       - "8080:80"
   producer_mock:
     build: ./producer-mock
+    ports:
+      - "9090:80"
   localstack:
     image: localstack/localstack
     ports:
