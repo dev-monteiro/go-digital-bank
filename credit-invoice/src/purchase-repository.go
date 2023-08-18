@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -18,26 +17,18 @@ func NewPurchaseRepository(dynamoCli *dynamodb.DynamoDB) PurchaseRepository {
 }
 
 func (repo *PurchaseRepository) save(purchase Purchase) error {
-	fmt.Printf("saving: %v", purchase)
-
 	item, err := dynamodbattribute.MarshalMap(purchase)
 	if err != nil {
-		fmt.Printf("err: %v", err)
 		return err
-	} else {
-		fmt.Printf("item: %v", item)
 	}
 
 	// TODO: add some attribute exists restriction
-	output, err := repo.dynamoCli.PutItem(&dynamodb.PutItemInput{
+	_, err = repo.dynamoCli.PutItem(&dynamodb.PutItemInput{
 		Item:      item,
 		TableName: aws.String("purchases-table"),
 	})
 	if err != nil {
-		fmt.Printf("err: %v", err)
 		return err
-	} else {
-		fmt.Printf("output: %v", output)
 	}
 
 	return nil

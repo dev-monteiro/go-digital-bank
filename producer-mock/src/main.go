@@ -34,7 +34,7 @@ func sendEvent(resWr http.ResponseWriter, req *http.Request) {
 		PurchaseDateTime:    time.Now().String(),
 		Amount:              float32(r.Intn(10000) / 100),
 		NumInstallments:     1,
-		MerchantDescription: "Acme Shop",
+		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
 	}
 	body, err := json.Marshal(event)

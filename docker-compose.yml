@@ -3,14 +3,20 @@ services:
     build: ./credit-invoice
     ports:
       - "8096:80"
+    volumes:
+      - ./credit-invoice/src:/home/src
   core_banking_mock:
     build: ./core-banking-mock
     ports:
       - "8080:80"
+    volumes:
+      - ./core-banking-mock/src:/home/src
   producer_mock:
     build: ./producer-mock
     ports:
       - "9090:80"
+    volumes:
+      - ./producer-mock/src:/home/src
   localstack:
     image: localstack/localstack
     ports:
