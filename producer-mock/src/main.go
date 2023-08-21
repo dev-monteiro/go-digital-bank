@@ -25,40 +25,33 @@ type PurchaseEvent struct {
 
 var sqsClient *sqs.SQS
 var queueUrl *string
-
-func sendEvent(resWr http.ResponseWriter, req *http.Request) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	event := PurchaseEvent{
-		PurchaseId:          r.Intn(10000),
-		CreditAccountId:     123,
-		PurchaseDateTime:    time.Now().String(),
-		Amount:              float32(r.Intn(10000) / 100),
-		NumInstallments:     1,
-		MerchantDescription: "Acme Mall",
-		Status:              "APPROVED",
-	}
-	body, err := json.Marshal(event)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	output, err := sqsClient.SendMessage(&sqs.SendMessageInput{
-		MessageBody: aws.String(string(body)),
-		QueueUrl:    queueUrl,
-	})
-
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(output)
-	}
-
-	resWr.WriteHeader(200)
-}
+var random *rand.Rand
 
 func main() {
-	time.Sleep(20 * time.Second)
+	setup()
 
+	http.HandleFunc("/", sendEvent)
+
+	http.ListenAndServe(":80", nil)
+}
+
+func setup() {
+	for {
+		err := setupSqs()
+
+		if err == nil {
+			break
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+
+	random = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	fmt.Println("Setup completed")
+}
+
+func setupSqs() error {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"),
 		Credentials: credentials.NewStaticCredentials("test", "test", ""),
@@ -66,23 +59,51 @@ func main() {
 	})
 
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("Connected to SQS.")
+		return err
 	}
-
 	sqsClient = sqs.New(sess)
 
 	queueName := "purchases-queue"
 	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
 		QueueName: &queueName,
 	})
+
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	queueUrl = queueUrlResp.QueueUrl
 
-	http.HandleFunc("/", sendEvent)
+	return nil
+}
 
-	http.ListenAndServe(":80", nil)
+func sendEvent(resWr http.ResponseWriter, req *http.Request) {
+	event := PurchaseEvent{
+		PurchaseId:          random.Intn(10000),
+		CreditAccountId:     123,
+		PurchaseDateTime:    time.Now().String(),
+		Amount:              float32(random.Intn(10000) / 100),
+		NumInstallments:     1,
+		MerchantDescription: "Acme Mall",
+		Status:              "APPROVED",
+	}
+	body, err := json.Marshal(event)
+
+	if err != nil {
+		fmt.Println(err)
+		resWr.WriteHeader(500)
+		return
+	}
+
+	_, err = sqsClient.SendMessage(&sqs.SendMessageInput{
+		MessageBody: aws.String(string(body)),
+		QueueUrl:    queueUrl,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		resWr.WriteHeader(500)
+		return
+	}
+
+	resWr.WriteHeader(200)
 }

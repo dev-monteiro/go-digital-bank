@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type InvoiceResponse struct {
@@ -20,6 +19,14 @@ type InvoiceResponse struct {
 
 type InvoiceListResponse struct {
 	Invoices []InvoiceResponse
+}
+
+func main() {
+	fmt.Println("Setup completed")
+
+	http.HandleFunc("/invoices", getInvoices)
+
+	http.ListenAndServe(":80", nil)
 }
 
 func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
@@ -49,12 +56,4 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 
 	resWriter.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(resWriter).Encode(invoiceList)
-}
-
-func main() {
-	time.Sleep(10 * time.Second)
-
-	http.HandleFunc("/invoices", getInvoices)
-
-	http.ListenAndServe(":80", nil)
 }

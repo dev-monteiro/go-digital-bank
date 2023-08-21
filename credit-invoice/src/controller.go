@@ -10,8 +10,8 @@ type Controller struct {
 	serv InvoiceService
 }
 
-func NewController(serv InvoiceService) Controller {
-	return Controller{serv: serv}
+func NewController(serv InvoiceService) *Controller {
+	return &Controller{serv: serv}
 }
 
 func (cont *Controller) getCurrentInvoice(resWr http.ResponseWriter, req *http.Request) {

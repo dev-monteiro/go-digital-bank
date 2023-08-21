@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -18,28 +16,22 @@ func NewAwsConfig() *aws.Config {
 	}
 }
 
-func NewDynamoClient() *dynamodb.DynamoDB {
+func NewDynamoClient() (*dynamodb.DynamoDB, error) {
 	sess, err := session.NewSession(NewAwsConfig())
 
 	if err != nil {
-		fmt.Println(err)
-		return nil
-	} else {
-		fmt.Println("Connected to DynamoDB.")
+		return nil, err
 	}
 
-	return dynamodb.New(sess)
+	return dynamodb.New(sess), nil
 }
 
-func NewSqsClient() *sqs.SQS {
+func NewSqsClient() (*sqs.SQS, error) {
 	sess, err := session.NewSession(NewAwsConfig())
 
 	if err != nil {
-		fmt.Println(err)
-		return nil
-	} else {
-		fmt.Println("Connected to SQS.")
+		return nil, err
 	}
 
-	return sqs.New(sess)
+	return sqs.New(sess), nil
 }
