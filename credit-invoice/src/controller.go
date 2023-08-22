@@ -7,10 +7,10 @@ import (
 )
 
 type Controller struct {
-	serv InvoiceService
+	serv *InvoiceService
 }
 
-func NewController(serv InvoiceService) *Controller {
+func NewController(serv *InvoiceService) *Controller {
 	return &Controller{serv: serv}
 }
 

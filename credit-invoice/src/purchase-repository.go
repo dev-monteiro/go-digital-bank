@@ -12,8 +12,8 @@ type PurchaseRepository struct {
 	dynamoCli *dynamodb.DynamoDB
 }
 
-func NewPurchaseRepository(dynamoCli *dynamodb.DynamoDB) PurchaseRepository {
-	return PurchaseRepository{dynamoCli: dynamoCli}
+func NewPurchaseRepository(dynamoCli *dynamodb.DynamoDB) *PurchaseRepository {
+	return &PurchaseRepository{dynamoCli: dynamoCli}
 }
 
 func (repo *PurchaseRepository) save(purchase Purchase) error {

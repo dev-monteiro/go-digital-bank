@@ -11,10 +11,10 @@ import (
 
 type Listener struct {
 	sqsClient *sqs.SQS
-	repo      PurchaseRepository
+	repo      *PurchaseRepository
 }
 
-func NewListener(sqsClient *sqs.SQS, repo PurchaseRepository) Listener {
+func NewListener(sqsClient *sqs.SQS, repo *PurchaseRepository) (*Listener, error) {
 	queueName := "purchases-queue"
 
 	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
@@ -22,6 +22,7 @@ func NewListener(sqsClient *sqs.SQS, repo PurchaseRepository) Listener {
 	})
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 
 	// TODO: make a pool of goroutines to handle more than 10 messages concurrently
@@ -59,9 +60,8 @@ func NewListener(sqsClient *sqs.SQS, repo PurchaseRepository) Listener {
 		}
 	}()
 
-	fmt.Println("Listener set up.")
-	return Listener{
+	return &Listener{
 		sqsClient: sqsClient,
 		repo:      repo,
-	}
+	}, nil
 }

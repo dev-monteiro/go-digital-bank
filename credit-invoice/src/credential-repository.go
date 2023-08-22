@@ -13,8 +13,8 @@ type CredentialRepository struct {
 	dynamoCli *dynamodb.DynamoDB
 }
 
-func NewCredentialRepository(dynamoCli *dynamodb.DynamoDB) CredentialRepository {
-	return CredentialRepository{dynamoCli: dynamoCli}
+func NewCredentialRepository(dynamoCli *dynamodb.DynamoDB) *CredentialRepository {
+	return &CredentialRepository{dynamoCli: dynamoCli}
 }
 
 func (repo *CredentialRepository) getCreditAccountId(customerId string) (int, error) {

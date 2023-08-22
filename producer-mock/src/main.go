@@ -43,7 +43,7 @@ func setup() {
 			break
 		}
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
 	random = rand.New(rand.NewSource(time.Now().UnixNano()))

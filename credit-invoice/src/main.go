@@ -19,27 +19,31 @@ func main() {
 }
 
 func setup() *Controller {
-	var controller *Controller
+	sqsCli := setupComponentWithRetry(NewSqsClient)
+	dynamoCli := setupComponentWithRetry(NewDynamoClient)
 
-	for {
-		dynamoCli, err := NewDynamoClient()
-		sqsCli, err := NewSqsClient()
+	credentialRepo := NewCredentialRepository(dynamoCli)
+	purchaseRepo := NewPurchaseRepository(dynamoCli)
 
-		credentialRepo := NewCredentialRepository(dynamoCli)
-		purchaseRepo := NewPurchaseRepository(dynamoCli)
+	setupComponentWithRetry(func() (*Listener, error) { return NewListener(sqsCli, purchaseRepo) })
 
-		NewListener(sqsCli, purchaseRepo)
-
-		invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
-		controller = NewController(invoiceServ)
-
-		if err != nil {
-			fmt.Println(err)
-			time.Sleep(2 * time.Second)
-		}
-		break
-	}
+	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
+	controller := NewController(invoiceServ)
 
 	fmt.Println("Setup completed")
 	return controller
+}
+
+func setupComponentWithRetry[T any](initFunction func() (T, error)) T {
+	for {
+		component, err := initFunction()
+
+		if err != nil {
+			fmt.Println(err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		return component
+	}
 }

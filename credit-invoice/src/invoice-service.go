@@ -8,12 +8,12 @@ import (
 )
 
 type InvoiceService struct {
-	credentialRepo CredentialRepository
-	purchaseRepo   PurchaseRepository
+	credentialRepo *CredentialRepository
+	purchaseRepo   *PurchaseRepository
 }
 
-func NewInvoiceService(credentialRepo CredentialRepository, purchaseRepo PurchaseRepository) InvoiceService {
-	return InvoiceService{
+func NewInvoiceService(credentialRepo *CredentialRepository, purchaseRepo *PurchaseRepository) *InvoiceService {
+	return &InvoiceService{
 		credentialRepo: credentialRepo,
 		purchaseRepo:   purchaseRepo,
 	}
