@@ -21,13 +21,13 @@ Lorem ipsum.
 
 Using LocalStack open source features:
 
-![plot](./images/arch-diag.png)
+![plot](./resources/images/arch-diag.png)
 
 ## Front-End Contract
 
 The contract should provide data to fill info on these screens:
 
-![plot](./images/screens.png)
+![plot](./resources/images/screens.png)
 
 For the current invoice info:
 
