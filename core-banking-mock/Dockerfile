@@ -1,13 +1,15 @@
 FROM golang:1.20
 
-WORKDIR /home
-
 RUN go install github.com/cosmtrek/air@latest
 
-COPY go.mod .
+COPY commons /home/commons
+
+WORKDIR /home/core-banking-mock
+
+COPY core-banking-mock/go.mod .
 RUN go mod download
 
-WORKDIR /home/src
+WORKDIR /home/core-banking-mock/src
 
 RUN air init
 CMD ["air"]

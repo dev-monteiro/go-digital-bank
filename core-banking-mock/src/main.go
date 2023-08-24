@@ -1,25 +1,11 @@
 package main
 
 import (
+	"devv-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
-
-type InvoiceResponse struct {
-	CreditAccountId     int
-	ProcessingSituation string
-	IsPaymentDone       bool
-	DueDate             string
-	ActualDueDate       string
-	ClosingDate         string
-	TotalAmount         float32
-	InvoiceId           int
-}
-
-type InvoiceListResponse struct {
-	Invoices []InvoiceResponse
-}
 
 func main() {
 	fmt.Println("Setup completed")
@@ -39,7 +25,7 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	invoice := InvoiceResponse{
+	invoice := commons.CoreBankingInvoiceResponse{
 		CreditAccountId:     123,
 		ProcessingSituation: "OPEN",
 		IsPaymentDone:       false,
@@ -50,8 +36,8 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		InvoiceId:           1234,
 	}
 
-	invoiceList := InvoiceListResponse{
-		Invoices: []InvoiceResponse{invoice},
+	invoiceList := commons.CoreBankingInvoiceListResponse{
+		Invoices: []commons.CoreBankingInvoiceResponse{invoice},
 	}
 
 	resWriter.Header().Add("Content-Type", "application/json")

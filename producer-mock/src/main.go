@@ -1,6 +1,7 @@
 package main
 
 import (
+	"devv-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -12,16 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
-
-type PurchaseEvent struct {
-	PurchaseId          int
-	CreditAccountId     int
-	PurchaseDateTime    string
-	Amount              float32
-	NumInstallments     int
-	MerchantDescription string
-	Status              string
-}
 
 var sqsClient *sqs.SQS
 var queueUrl *string
@@ -77,7 +68,7 @@ func setupSqs() error {
 }
 
 func sendEvent(resWr http.ResponseWriter, req *http.Request) {
-	event := PurchaseEvent{
+	event := commons.PurchaseEvent{
 		PurchaseId:          random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
@@ -85,6 +76,7 @@ func sendEvent(resWr http.ResponseWriter, req *http.Request) {
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
+		Description:         "love generation",
 	}
 	body, err := json.Marshal(event)
 

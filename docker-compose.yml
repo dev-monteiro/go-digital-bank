@@ -1,22 +1,31 @@
 services:
   credit_invoice:
-    build: ./credit-invoice
+    build:
+      context: .
+      dockerfile: ./credit-invoice/Dockerfile
     ports:
       - "8096:80"
     volumes:
-      - ./credit-invoice/src:/home/src
+      - ./credit-invoice/src:/home/credit-invoice/src
+      - ./commons:/home/commons
   core_banking_mock:
-    build: ./core-banking-mock
+    build:
+      context: .
+      dockerfile: ./core-banking-mock/Dockerfile
     ports:
       - "8080:80"
     volumes:
-      - ./core-banking-mock/src:/home/src
+      - ./core-banking-mock/src:/home/core-banking-mock/src
+      - ./commons:/home/commons
   producer_mock:
-    build: ./producer-mock
+    build:
+      context: .
+      dockerfile: ./producer-mock/Dockerfile
     ports:
       - "9090:80"
     volumes:
-      - ./producer-mock/src:/home/src
+      - ./producer-mock/src:/home/producer-mock/src
+      - ./commons:/home/commons
   localstack:
     image: localstack/localstack
     ports:
@@ -28,4 +37,4 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "$PWD/script/init.sh:/etc/localstack/init/ready.d/init.sh"
+      - "$PWD/resources/script/init.sh:/etc/localstack/init/ready.d/init.sh"

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"devv-monteiro/go-digital-bank/commons"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -16,7 +17,7 @@ func NewPurchaseRepository(dynamoCli *dynamodb.DynamoDB) *PurchaseRepository {
 	return &PurchaseRepository{dynamoCli: dynamoCli}
 }
 
-func (repo *PurchaseRepository) save(purchase Purchase) error {
+func (repo *PurchaseRepository) save(purchase commons.PurchaseEvent) error {
 	item, err := dynamodbattribute.MarshalMap(purchase)
 	if err != nil {
 		return err
@@ -35,7 +36,7 @@ func (repo *PurchaseRepository) save(purchase Purchase) error {
 }
 
 // TODO: verify the not found case
-func (repo *PurchaseRepository) findAllByCreditAccountId(creditAccountId int) ([]Purchase, error) {
+func (repo *PurchaseRepository) findAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
 	result, err := repo.dynamoCli.Query(&dynamodb.QueryInput{
 		TableName:              aws.String("purchases-table"),
 		KeyConditionExpression: aws.String("#creditAccountId = :creditAccountId"),
@@ -52,7 +53,7 @@ func (repo *PurchaseRepository) findAllByCreditAccountId(creditAccountId int) ([
 		return nil, err
 	}
 
-	var purchases []Purchase
+	var purchases []commons.PurchaseEvent
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &purchases)
 	if err != nil {
 		return nil, err

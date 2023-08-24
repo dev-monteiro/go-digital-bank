@@ -1,6 +1,7 @@
 package main
 
 import (
+	"devv-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -43,7 +44,8 @@ func NewListener(sqsClient *sqs.SQS, repo *PurchaseRepository) (*Listener, error
 
 			for _, msg := range output.Messages {
 				if aws.StringValue(msg.Body) != "" {
-					pur := Purchase{}
+					fmt.Println(msg.Body)
+					pur := commons.PurchaseEvent{}
 					json.Unmarshal([]byte(*msg.Body), &pur)
 					fmt.Println(pur)
 					repo.save(pur)

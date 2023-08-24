@@ -34,9 +34,9 @@ func setup() *Controller {
 	return controller
 }
 
-func setupComponentWithRetry[T any](initFunction func() (T, error)) T {
+func setupComponentWithRetry[T any](setupFunction func() (T, error)) T {
 	for {
-		component, err := initFunction()
+		component, err := setupFunction()
 
 		if err != nil {
 			fmt.Println(err)

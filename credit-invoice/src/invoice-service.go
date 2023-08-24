@@ -1,6 +1,7 @@
 package main
 
 import (
+	"devv-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -56,7 +57,7 @@ func (serv *InvoiceService) updateAmount(creditAccountId int, currentAmount floa
 	return currentAmount
 }
 
-func (InvoiceService) getCoreBankingInvoice(creditAccountId int) (*CoreBankingInvoiceResponse, error) {
+func (InvoiceService) getCoreBankingInvoice(creditAccountId int) (*commons.CoreBankingInvoiceResponse, error) {
 	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(creditAccountId)
 	fmt.Println("Url = " + url)
 
@@ -65,7 +66,7 @@ func (InvoiceService) getCoreBankingInvoice(creditAccountId int) (*CoreBankingIn
 		return nil, err
 	}
 
-	var invoiceList CoreBankingInvoiceListResponse
+	var invoiceList commons.CoreBankingInvoiceListResponse
 	json.NewDecoder(invoiceResp.Body).Decode(&invoiceList)
 	invoice := invoiceList.Invoices[0]
 	return &invoice, nil
