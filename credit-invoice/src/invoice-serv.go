@@ -8,20 +8,20 @@ import (
 	"strconv"
 )
 
-type InvoiceService struct {
-	credentialRepo *CredentialRepository
-	purchaseRepo   *PurchaseRepository
+type InvoiceServ struct {
+	credRepo  *CredentialRepo
+	purchRepo *PurchaseRepo
 }
 
-func NewInvoiceService(credentialRepo *CredentialRepository, purchaseRepo *PurchaseRepository) *InvoiceService {
-	return &InvoiceService{
-		credentialRepo: credentialRepo,
-		purchaseRepo:   purchaseRepo,
+func NewInvoiceServ(credRepo *CredentialRepo, purchRepo *PurchaseRepo) *InvoiceServ {
+	return &InvoiceServ{
+		credRepo:  credRepo,
+		purchRepo: purchRepo,
 	}
 }
 
-func (serv *InvoiceService) getCurrentInvoice(customerId string) (*CurrentInvoiceResponse, error) {
-	creditAccountId, err := serv.credentialRepo.getCreditAccountId(customerId)
+func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrentInvoiceResponse, error) {
+	creditAccountId, err := serv.credRepo.getCreditAccountId(customerId)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (serv *InvoiceService) getCurrentInvoice(customerId string) (*CurrentInvoic
 	return &response, nil
 }
 
-func (serv *InvoiceService) updateAmount(creditAccountId int, currentAmount float32) float32 {
-	purchases, err := serv.purchaseRepo.findAllByCreditAccountId(creditAccountId)
+func (serv *InvoiceServ) updateAmount(creditAccountId int, currentAmount float32) float32 {
+	purchases, err := serv.purchRepo.findAllByCreditAccountId(creditAccountId)
 
 	if err != nil {
 		fmt.Println(err)
@@ -57,9 +57,8 @@ func (serv *InvoiceService) updateAmount(creditAccountId int, currentAmount floa
 	return currentAmount
 }
 
-func (InvoiceService) getCoreBankingInvoice(creditAccountId int) (*commons.CoreBankingInvoiceResponse, error) {
+func (InvoiceServ) getCoreBankingInvoice(creditAccountId int) (*commons.CoreBankingInvoiceResponse, error) {
 	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(creditAccountId)
-	fmt.Println("Url = " + url)
 
 	invoiceResp, err := http.Get(url)
 	if err != nil {

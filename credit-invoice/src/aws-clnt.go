@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-func NewAwsConfig() *aws.Config {
+func newAwsConfig() *aws.Config {
 	return &aws.Config{
 		Region:      aws.String("us-east-1"),
 		Credentials: credentials.NewStaticCredentials("test", "test", ""),
@@ -16,8 +16,8 @@ func NewAwsConfig() *aws.Config {
 	}
 }
 
-func NewDynamoClient() (*dynamodb.DynamoDB, error) {
-	sess, err := session.NewSession(NewAwsConfig())
+func NewDynamoClnt() (*dynamodb.DynamoDB, error) {
+	sess, err := session.NewSession(newAwsConfig())
 
 	if err != nil {
 		return nil, err
@@ -26,8 +26,8 @@ func NewDynamoClient() (*dynamodb.DynamoDB, error) {
 	return dynamodb.New(sess), nil
 }
 
-func NewSqsClient() (*sqs.SQS, error) {
-	sess, err := session.NewSession(NewAwsConfig())
+func NewSqsClnt() (*sqs.SQS, error) {
+	sess, err := session.NewSession(newAwsConfig())
 
 	if err != nil {
 		return nil, err

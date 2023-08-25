@@ -4,39 +4,37 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // TODO: use some real logging library
 // TODO: use best practices for constants and env variables
 func main() {
-	controller := setup()
+	invoCont := setup()
 
-	http.HandleFunc("/invoices/current", controller.getCurrentInvoice)
+	http.HandleFunc("/invoices/current", invoCont.getCurrInvoice)
 
 	http.ListenAndServe(":80", nil)
 }
 
-func setup() *Controller {
-	sqsCli := setupComponentWithRetry(NewSqsClient)
-	dynamoCli := setupComponentWithRetry(NewDynamoClient)
+func setup() *InvoiceCont {
+	sqsClnt := setupWithRetry(NewSqsClnt)
+	dynaClnt := setupWithRetry(NewDynamoClnt)
 
-	credentialRepo := NewCredentialRepository(dynamoCli)
-	purchaseRepo := NewPurchaseRepository(dynamoCli)
+	credRepo := NewCredentialRepo(dynaClnt)
+	purchRepo := NewPurchaseRepo(dynaClnt)
 
-	setupComponentWithRetry(func() (*Listener, error) { return NewListener(sqsCli, purchaseRepo) })
+	setupWithRetry(func() (*PurchaseListen, error) { return NewPurchaseListen(sqsClnt, purchRepo) })
 
-	invoiceServ := NewInvoiceService(credentialRepo, purchaseRepo)
-	controller := NewController(invoiceServ)
+	invoServ := NewInvoiceServ(credRepo, purchRepo)
+	invoCont := NewInvoiceCont(invoServ)
 
 	fmt.Println("Setup completed")
-	return controller
+	return invoCont
 }
 
-func setupComponentWithRetry[T any](setupFunction func() (T, error)) T {
+func setupWithRetry[T any](setupFunc func() (T, error)) T {
 	for {
-		component, err := setupFunction()
+		comp, err := setupFunc()
 
 		if err != nil {
 			fmt.Println(err)
@@ -44,6 +42,6 @@ func setupComponentWithRetry[T any](setupFunction func() (T, error)) T {
 			continue
 		}
 
-		return component
+		return comp
 	}
 }

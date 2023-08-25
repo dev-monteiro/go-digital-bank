@@ -9,15 +9,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type PurchaseRepository struct {
+type PurchaseRepo struct {
 	dynamoCli *dynamodb.DynamoDB
 }
 
-func NewPurchaseRepository(dynamoCli *dynamodb.DynamoDB) *PurchaseRepository {
-	return &PurchaseRepository{dynamoCli: dynamoCli}
+func NewPurchaseRepo(dynamoCli *dynamodb.DynamoDB) *PurchaseRepo {
+	return &PurchaseRepo{dynamoCli: dynamoCli}
 }
 
-func (repo *PurchaseRepository) save(purchase commons.PurchaseEvent) error {
+func (repo *PurchaseRepo) save(purchase commons.PurchaseEvent) error {
 	item, err := dynamodbattribute.MarshalMap(purchase)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func (repo *PurchaseRepository) save(purchase commons.PurchaseEvent) error {
 }
 
 // TODO: verify the not found case
-func (repo *PurchaseRepository) findAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
+func (repo *PurchaseRepo) findAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
 	result, err := repo.dynamoCli.Query(&dynamodb.QueryInput{
 		TableName:              aws.String("purchases-table"),
 		KeyConditionExpression: aws.String("#creditAccountId = :creditAccountId"),
