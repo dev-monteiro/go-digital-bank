@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"devv-monteiro/go-digital-bank/commons"
@@ -17,7 +17,7 @@ func NewPurchaseRepo(dynamoCli *dynamodb.DynamoDB) *PurchaseRepo {
 	return &PurchaseRepo{dynamoCli: dynamoCli}
 }
 
-func (repo *PurchaseRepo) save(purchase commons.PurchaseEvent) error {
+func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
 	item, err := dynamodbattribute.MarshalMap(purchase)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func (repo *PurchaseRepo) save(purchase commons.PurchaseEvent) error {
 }
 
 // TODO: verify the not found case
-func (repo *PurchaseRepo) findAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
+func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
 	result, err := repo.dynamoCli.Query(&dynamodb.QueryInput{
 		TableName:              aws.String("purchases-table"),
 		KeyConditionExpression: aws.String("#creditAccountId = :creditAccountId"),

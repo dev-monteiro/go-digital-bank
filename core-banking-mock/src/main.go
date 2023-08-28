@@ -19,13 +19,13 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	creditAccountId := request.Form.Get("creditAccountId")
 
-	fmt.Println("CreditAccountId = " + creditAccountId)
+	fmt.Println("CreditAccountId: " + creditAccountId)
 	if creditAccountId != "123" {
 		resWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	invoice := commons.CoreBankingInvoiceResponse{
+	invoice := commons.CoreBankInvoiceResp{
 		CreditAccountId:     123,
 		ProcessingSituation: "OPEN",
 		IsPaymentDone:       false,
@@ -36,8 +36,8 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		InvoiceId:           1234,
 	}
 
-	invoiceList := commons.CoreBankingInvoiceListResponse{
-		Invoices: []commons.CoreBankingInvoiceResponse{invoice},
+	invoiceList := commons.CoreBankInvoiceListResp{
+		Invoices: []commons.CoreBankInvoiceResp{invoice},
 	}
 
 	resWriter.Header().Add("Content-Type", "application/json")

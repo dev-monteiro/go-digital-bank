@@ -1,20 +1,21 @@
-package main
+package transport
 
 import (
+	"devv-monteiro/go-digital-bank/credit-invoice/src/business"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
 type InvoiceCont struct {
-	serv *InvoiceServ
+	serv *business.InvoiceServ
 }
 
-func NewInvoiceCont(serv *InvoiceServ) *InvoiceCont {
+func NewInvoiceCont(serv *business.InvoiceServ) *InvoiceCont {
 	return &InvoiceCont{serv: serv}
 }
 
-func (cont *InvoiceCont) getCurrInvoice(resWr http.ResponseWriter, req *http.Request) {
+func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Request) {
 	fmt.Println("Path: " + req.URL.Path)
 
 	if req.Method != http.MethodGet {

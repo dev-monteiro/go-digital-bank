@@ -1,6 +1,6 @@
 package commons
 
-type CoreBankingInvoiceResponse struct {
+type CoreBankInvoiceResp struct {
 	CreditAccountId     int32
 	ProcessingSituation string
 	IsPaymentDone       bool
@@ -11,8 +11,8 @@ type CoreBankingInvoiceResponse struct {
 	InvoiceId           int
 }
 
-type CoreBankingInvoiceListResponse struct {
-	Invoices []CoreBankingInvoiceResponse
+type CoreBankInvoiceListResp struct {
+	Invoices []CoreBankInvoiceResp
 }
 
 type PurchaseEvent struct {

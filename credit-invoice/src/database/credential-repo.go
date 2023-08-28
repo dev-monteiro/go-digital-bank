@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ func NewCredentialRepo(dynamoClnt *dynamodb.DynamoDB) *CredentialRepo {
 	return &CredentialRepo{dynaClnt: dynamoClnt}
 }
 
-func (repo *CredentialRepo) getCreditAccountId(customerId string) (int, error) {
+func (repo *CredentialRepo) GetCreditAccountId(customerId string) (int, error) {
 	dynaInput := dynamodb.GetItemInput{
 		TableName: aws.String("customer-credentials-table"),
 		Key: map[string]*dynamodb.AttributeValue{

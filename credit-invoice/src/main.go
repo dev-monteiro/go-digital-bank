@@ -1,6 +1,10 @@
 package main
 
 import (
+	busi "devv-monteiro/go-digital-bank/credit-invoice/src/business"
+	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	tran "devv-monteiro/go-digital-bank/credit-invoice/src/transport"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,22 +15,22 @@ import (
 func main() {
 	invoCont := setup()
 
-	http.HandleFunc("/invoices/current", invoCont.getCurrInvoice)
+	http.HandleFunc("/invoices/current", invoCont.GetCurrInvoice)
 
 	http.ListenAndServe(":80", nil)
 }
 
-func setup() *InvoiceCont {
-	sqsClnt := setupWithRetry(NewSqsClnt)
-	dynaClnt := setupWithRetry(NewDynamoClnt)
+func setup() *tran.InvoiceCont {
+	sqsClnt := setupWithRetry(conf.NewSqsClnt)
+	dynaClnt := setupWithRetry(conf.NewDynamoClnt)
 
-	credRepo := NewCredentialRepo(dynaClnt)
-	purchRepo := NewPurchaseRepo(dynaClnt)
+	credRepo := data.NewCredentialRepo(dynaClnt)
+	purchRepo := data.NewPurchaseRepo(dynaClnt)
 
-	setupWithRetry(func() (*PurchaseListen, error) { return NewPurchaseListen(sqsClnt, purchRepo) })
+	invoServ := busi.NewInvoiceServ(credRepo, purchRepo)
 
-	invoServ := NewInvoiceServ(credRepo, purchRepo)
-	invoCont := NewInvoiceCont(invoServ)
+	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, purchRepo) })
+	invoCont := tran.NewInvoiceCont(invoServ)
 
 	fmt.Println("Setup completed")
 	return invoCont

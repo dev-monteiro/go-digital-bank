@@ -1,4 +1,4 @@
-package main
+package configuration
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
@@ -7,14 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
-
-func newAwsConfig() *aws.Config {
-	return &aws.Config{
-		Region:      aws.String("us-east-1"),
-		Credentials: credentials.NewStaticCredentials("test", "test", ""),
-		Endpoint:    aws.String("http://localstack:4566"),
-	}
-}
 
 func NewDynamoClnt() (*dynamodb.DynamoDB, error) {
 	sess, err := session.NewSession(newAwsConfig())
@@ -34,4 +26,12 @@ func NewSqsClnt() (*sqs.SQS, error) {
 	}
 
 	return sqs.New(sess), nil
+}
+
+func newAwsConfig() *aws.Config {
+	return &aws.Config{
+		Region:      aws.String("us-east-1"),
+		Credentials: credentials.NewStaticCredentials("test", "test", ""),
+		Endpoint:    aws.String("http://localstack:4566"),
+	}
 }

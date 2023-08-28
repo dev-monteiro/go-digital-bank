@@ -1,7 +1,8 @@
-package main
+package transport
 
 import (
-	"devv-monteiro/go-digital-bank/commons"
+	comm "devv-monteiro/go-digital-bank/commons"
+	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -12,10 +13,10 @@ import (
 
 type PurchaseListen struct {
 	sqsClnt   *sqs.SQS
-	purchRepo *PurchaseRepo
+	purchRepo *data.PurchaseRepo
 }
 
-func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *PurchaseRepo) (*PurchaseListen, error) {
+func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *data.PurchaseRepo) (*PurchaseListen, error) {
 	queueName := "purchases-queue"
 	sqsUrlInput := sqs.GetQueueUrlInput{
 		QueueName: &queueName,
@@ -49,10 +50,10 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *PurchaseRepo) (*PurchaseList
 					continue
 				}
 
-				purch := commons.PurchaseEvent{}
+				purch := comm.PurchaseEvent{}
 				json.Unmarshal([]byte(*msg.Body), &purch)
 
-				err := purchRepo.save(purch)
+				err := purchRepo.Save(purch)
 				if err != nil {
 					fmt.Println(err)
 				}
