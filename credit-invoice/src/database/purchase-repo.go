@@ -2,6 +2,8 @@ package database
 
 import (
 	"devv-monteiro/go-digital-bank/commons"
+	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	"net/http"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -35,9 +37,8 @@ func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
 	return nil
 }
 
-// TODO: verify the not found case
-func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, error) {
-	result, err := repo.dynamoCli.Query(&dynamodb.QueryInput{
+func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, *conf.AppError) {
+	dynaInput := &dynamodb.QueryInput{
 		TableName:              aws.String("purchases-table"),
 		KeyConditionExpression: aws.String("#creditAccountId = :creditAccountId"),
 		ExpressionAttributeNames: map[string]*string{
@@ -48,15 +49,23 @@ func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commo
 				N: aws.String(strconv.Itoa(creditAccountId)),
 			},
 		},
-	})
+	}
+
+	dynaOutput, err := repo.dynamoCli.Query(dynaInput)
 	if err != nil {
-		return nil, err
+		return nil, &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	var purchases []commons.PurchaseEvent
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &purchases)
+	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &purchases)
 	if err != nil {
-		return nil, err
+		return nil, &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	return purchases, nil

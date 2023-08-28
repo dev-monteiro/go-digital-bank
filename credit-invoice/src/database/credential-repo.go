@@ -1,7 +1,8 @@
 package database
 
 import (
-	"errors"
+	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -16,7 +17,7 @@ func NewCredentialRepo(dynamoClnt *dynamodb.DynamoDB) *CredentialRepo {
 	return &CredentialRepo{dynaClnt: dynamoClnt}
 }
 
-func (repo *CredentialRepo) GetCreditAccountId(customerId string) (int, error) {
+func (repo *CredentialRepo) GetCreditAccountId(customerId string) (int, *conf.AppError) {
 	dynaInput := dynamodb.GetItemInput{
 		TableName: aws.String("customer-credentials-table"),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -28,17 +29,23 @@ func (repo *CredentialRepo) GetCreditAccountId(customerId string) (int, error) {
 
 	dynaOutput, err := repo.dynaClnt.GetItem(&dynaInput)
 	if err != nil {
-		return 0, err
+		return 0, &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	if dynaOutput.Item == nil {
-		return 0, errors.New("Not found.")
+		return 0, &conf.AppError{Message: "Customer not found.", StatusCode: http.StatusNotFound}
 	}
 
 	cred := CustomerCredential{}
 	err = dynamodbattribute.UnmarshalMap(dynaOutput.Item, &cred)
 	if err != nil {
-		return 0, err
+		return 0, &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	return cred.CreditAccountId, nil

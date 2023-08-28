@@ -18,6 +18,8 @@ func NewInvoiceCont(serv *business.InvoiceServ) *InvoiceCont {
 func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Request) {
 	fmt.Println("Path: " + req.URL.Path)
 
+	resWr.Header().Set("Content-Type", "application/json")
+
 	if req.Method != http.MethodGet {
 		resWr.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -29,10 +31,10 @@ func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Req
 
 	currentInvoice, err := cont.serv.GetCurrentInvoice(customerId)
 	if err != nil {
-		resWr.WriteHeader(http.StatusBadRequest)
+		resWr.WriteHeader(err.StatusCode)
+		json.NewEncoder(resWr).Encode(err)
 		return
 	}
 
-	resWr.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(resWr).Encode(currentInvoice)
 }

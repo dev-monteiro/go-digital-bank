@@ -2,10 +2,10 @@ package business
 
 import (
 	comm "devv-monteiro/go-digital-bank/commons"
+	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -22,7 +22,7 @@ func NewInvoiceServ(credRepo *data.CredentialRepo, purchRepo *data.PurchaseRepo)
 	}
 }
 
-func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrInvoiceResp, error) {
+func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrInvoiceResp, *conf.AppError) {
 	creditAccountId, err := serv.credRepo.GetCreditAccountId(customerId)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,10 @@ func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrInvoiceResp,
 		return nil, err
 	}
 
-	updatedAmount := serv.updateAmount(creditAccountId, invoice.TotalAmount)
+	updatedAmount, err := serv.updateAmount(creditAccountId, invoice.TotalAmount)
+	if err != nil {
+		return nil, err
+	}
 
 	response := CurrInvoiceResp{
 		Id:          strconv.Itoa(invoice.InvoiceId),
@@ -45,26 +48,28 @@ func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrInvoiceResp,
 	return &response, nil
 }
 
-func (serv *InvoiceServ) updateAmount(creditAccountId int, currentAmount float32) float32 {
+func (serv *InvoiceServ) updateAmount(creditAccountId int, currentAmount float32) (float32, *conf.AppError) {
 	purchases, err := serv.purchRepo.FindAllByCreditAccountId(creditAccountId)
 
 	if err != nil {
-		fmt.Println(err)
-		return currentAmount
+		return 0, err
 	}
 
 	for _, purchase := range purchases {
 		currentAmount += purchase.Amount
 	}
-	return currentAmount
+	return currentAmount, nil
 }
 
-func (InvoiceServ) getCoreBankInvoice(creditAccountId int) (*comm.CoreBankInvoiceResp, error) {
+func (InvoiceServ) getCoreBankInvoice(creditAccountId int) (*comm.CoreBankInvoiceResp, *conf.AppError) {
 	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(creditAccountId)
 
 	coreBankResp, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	var invoiceList comm.CoreBankInvoiceListResp
