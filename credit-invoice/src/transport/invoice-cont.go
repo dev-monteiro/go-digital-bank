@@ -28,6 +28,10 @@ func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Req
 	req.ParseForm()
 	customerId := req.Form.Get("customerId")
 	fmt.Println("CustomerId: " + customerId)
+	if customerId == "" {
+		resWr.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	currentInvoice, err := cont.serv.GetCurrentInvoice(customerId)
 	if err != nil {
