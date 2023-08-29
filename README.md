@@ -41,45 +41,57 @@ Response Body
 {
     "id": "xyz-789-mnp",
     "statusLabel": "Closed|Current",
-    "amount": 1234.56,
+    "amount": "$ 1234.56",
     "closingDate": "APR 13"
 }
 ```
 
-For the invoice summary info:
+For the invoice details info:
 
 Endpoint
 ```
-GET {host}/invoices/summary/{invoiceId}
+GET {host}/invoices/{invoiceId}/details
 ```
 
 Response Body
 ```json
 {
-    "id": "xyz-789-mnp",
-    "refMonthLabel": "NOV",
-    "amount": 1675.55,
+    "id": "mmm-555-nnn",
+    "monthLabel": "NOV",
+    "amount": "$ 1675.55",
     "dueDate": "NOV 8",
     "closingDate": "NOV 1",
     "entries": [
         {
             "date": "OCT 24",
             "description": "Taxi SP",
-            "amount": 56.54
+            "amount": "$ 56.54"
         },
         {
             "date": "OCT 27",
             "description": "Amazon 3/6",
-            "amount": 111.11
+            "amount": "$ 111.11"
         }
-    ]
+    ],
+    "pagination": {
+        "previous": {
+            "id": "aaa-000-bbb",
+            "monthLabel": "OCT",
+            "previousMonthLabel": "SEP",
+        },
+        "next": {
+            "id": "yyy-999-zzz",
+            "monthLabel": "DEC",
+            "nextMonthLabel": "JAN",
+        },
+    }
 }
 ```
 
 
 ## Core Banking Contract
 
-For the invoices info:
+For the invoices info ([example](https://lighthouse.dock.tech/docs/pier-pro-api-reference/1b0ec155a9966-list-of-invoices)):
 
 Endpoint
 ```
@@ -89,35 +101,39 @@ GET {host}/invoices?creditAccountId={creditAccountId}
 Response Body
 ```json
 {
-    "creditAccountId": 123,
-    "processingSituation": "CLOSED|OPEN|FUTURE",
-    "isPaymentDone": true,
-    "dueDate": "2023-08-15",
-    "actualDueDate": "2023-08-15",
-    "closingDate": "2023-08-05",
-    "totalAmount": 1234.56,
-    "invoiceId": 1234
+    "content": [
+        {
+            "creditAccountId": 123,
+            "invoiceId": 1234,
+            "processingStatus": "CLOSED|OPEN|FUTURE",
+            "isPaymentDone": false|true,
+            "dueDate": "2023-08-15",
+            "actualDueDate": "2023-08-15",
+            "closingDate": "2023-08-05",
+            "totalAmount": 1234.56
+        }
+    ]
 }
 ```
 
-For the invoices entries info:
+For the invoices entries info ([example](https://lighthouse.dock.tech/docs/pier-pro-api-reference/974ef197cb242-retrieve-the-invoice-of-a-client)):
 
 Endpoint
 ```
-GET {host}/invoices/:invoiceId?creditAccountId={creditAccountId}
+GET {host}/invoices/{invoiceId}?creditAccountId={creditAccountId}
 ```
 
 Response
 ```json
 {
     "creditAccountId": 123,
+    "invoiceId": 1234,
     "processingSituation": "CLOSED|OPEN|FUTURE",
     "isPaymentDone": true,
     "dueDate": "2023-08-15",
     "actualDueDate": "2023-08-15",
     "closingDate": "2023-08-05",
     "totalAmount": 1234.56,
-    "invoiceId": 12345,
     "entries": [
         {
             "transactionId": 12345,
