@@ -5,6 +5,8 @@ import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"fmt"
+	"strings"
+	"time"
 
 	"encoding/json"
 	"net/http"
@@ -40,6 +42,7 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	if err != nil {
 		return nil, err
 	}
+
 	if id == "" {
 		invo := data.NewInvoice(cbInvo.InvoiceId)
 
@@ -56,11 +59,21 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 		return nil, err
 	}
 
+	statusLab, err := serv.getStatusLabel(cbInvo.ProcessingSituation)
+	if err != nil {
+		return nil, err
+	}
+
+	closDate, err := serv.convertClosingDate(cbInvo.ClosingDate)
+	if err != nil {
+		return nil, err
+	}
+
 	resp := CurrInvoiceResp{
 		Id:          id,
-		StatusLabel: cbInvo.ProcessingSituation,
-		Amount:      updaAmount,
-		ClosingDate: cbInvo.ClosingDate,
+		StatusLabel: statusLab,
+		Amount:      fmt.Sprintf("$ %.2f", updaAmount),
+		ClosingDate: closDate,
 	}
 
 	return &resp, nil
@@ -96,4 +109,30 @@ func (InvoiceServ) getCoreBankInvoice(creditAccountId int) (*comm.CoreBankInvoic
 	json.NewDecoder(coreBankResp.Body).Decode(&invoiceList)
 	invoice := invoiceList.Invoices[0]
 	return &invoice, nil
+}
+
+func (InvoiceServ) getStatusLabel(procSitu string) (string, *conf.AppError) {
+	switch procSitu {
+	case "OPEN":
+		return "Current", nil
+	case "CLOSED":
+		return "Closed", nil
+	default:
+		return "", &conf.AppError{
+			Message:    "Unknown error: " + "Processing situation cannot be converted.",
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+}
+
+func (InvoiceServ) convertClosingDate(closingDate string) (string, *conf.AppError) {
+	parsedDate, err := time.Parse(time.DateOnly, closingDate)
+	if err != nil {
+		return "", &conf.AppError{
+			Message:    "Unknown error: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	return strings.ToUpper(parsedDate.Format("Jan 02")), nil
 }

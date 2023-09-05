@@ -9,17 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/google/uuid"
 )
-
-type Invoice struct {
-	Id         string
-	CoreBankId int
-}
-
-func NewInvoice(cbId int) *Invoice {
-	return &Invoice{Id: uuid.New().String(), CoreBankId: cbId}
-}
 
 type InvoiceRepo struct {
 	dynaClnt *dynamodb.DynamoDB
@@ -83,7 +73,6 @@ func (repo *InvoiceRepo) Save(invo Invoice) *conf.AppError {
 		}
 	}
 
-	// TODO: add some attribute exists restriction
 	_, err = repo.dynaClnt.PutItem(&dynamodb.PutItemInput{
 		Item:      item,
 		TableName: aws.String("invoices-table"),

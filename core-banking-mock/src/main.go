@@ -32,7 +32,7 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		DueDate:             "2023-08-20",
 		ActualDueDate:       "2023-08-21",
 		ClosingDate:         "2023-08-15",
-		TotalAmount:         1234.56,
+		TotalAmount:         1234.5,
 		InvoiceId:           1234,
 	}
 
