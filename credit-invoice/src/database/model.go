@@ -1,6 +1,6 @@
 package database
 
-type CustomerCredential struct {
-	CustomerId      string
-	CreditAccountId int
+type Customer struct {
+	Id         string
+	CoreBankId int
 }

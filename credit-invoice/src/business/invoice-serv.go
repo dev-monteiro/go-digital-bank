@@ -4,6 +4,7 @@ import (
 	comm "devv-monteiro/go-digital-bank/commons"
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	"fmt"
 
 	"encoding/json"
 	"net/http"
@@ -11,41 +12,58 @@ import (
 )
 
 type InvoiceServ struct {
-	credRepo  *data.CredentialRepo
+	credRepo  *data.CustomerRepo
 	purchRepo *data.PurchaseRepo
+	invoRepo  *data.InvoiceRepo
 }
 
-func NewInvoiceServ(credRepo *data.CredentialRepo, purchRepo *data.PurchaseRepo) *InvoiceServ {
+func NewInvoiceServ(custRepo *data.CustomerRepo, purchRepo *data.PurchaseRepo, invoRepo *data.InvoiceRepo) *InvoiceServ {
 	return &InvoiceServ{
-		credRepo:  credRepo,
+		credRepo:  custRepo,
 		purchRepo: purchRepo,
+		invoRepo:  invoRepo,
 	}
 }
 
-func (serv *InvoiceServ) GetCurrentInvoice(customerId string) (*CurrInvoiceResp, *conf.AppError) {
-	creditAccountId, err := serv.credRepo.GetCreditAccountId(customerId)
+func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.AppError) {
+	cbCustId, err := serv.credRepo.GetCoreBankId(custId)
 	if err != nil {
 		return nil, err
 	}
 
-	invoice, err := serv.getCoreBankInvoice(creditAccountId)
+	cbInvo, err := serv.getCoreBankInvoice(cbCustId)
 	if err != nil {
 		return nil, err
 	}
 
-	updatedAmount, err := serv.updateAmount(creditAccountId, invoice.TotalAmount)
+	id, err := serv.invoRepo.GetId(cbInvo.InvoiceId)
+	if err != nil {
+		return nil, err
+	}
+	if id == "" {
+		invo := data.NewInvoice(cbInvo.InvoiceId)
+
+		err = serv.invoRepo.Save(*invo)
+		if err != nil {
+			return nil, err
+		}
+
+		id = invo.Id
+	}
+
+	updaAmount, err := serv.updateAmount(cbCustId, cbInvo.TotalAmount)
 	if err != nil {
 		return nil, err
 	}
 
-	response := CurrInvoiceResp{
-		Id:          strconv.Itoa(invoice.InvoiceId),
-		StatusLabel: invoice.ProcessingSituation,
-		Amount:      updatedAmount,
-		ClosingDate: invoice.ClosingDate,
+	resp := CurrInvoiceResp{
+		Id:          id,
+		StatusLabel: cbInvo.ProcessingSituation,
+		Amount:      updaAmount,
+		ClosingDate: cbInvo.ClosingDate,
 	}
 
-	return &response, nil
+	return &resp, nil
 }
 
 func (serv *InvoiceServ) updateAmount(creditAccountId int, currentAmount float32) (float32, *conf.AppError) {
@@ -62,6 +80,8 @@ func (serv *InvoiceServ) updateAmount(creditAccountId int, currentAmount float32
 }
 
 func (InvoiceServ) getCoreBankInvoice(creditAccountId int) (*comm.CoreBankInvoiceResp, *conf.AppError) {
+	fmt.Println("getCoreBankInvoice")
+
 	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(creditAccountId)
 
 	coreBankResp, err := http.Get(url)

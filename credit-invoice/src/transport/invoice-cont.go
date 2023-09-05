@@ -33,7 +33,7 @@ func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Req
 		return
 	}
 
-	currentInvoice, err := cont.serv.GetCurrentInvoice(customerId)
+	currentInvoice, err := cont.serv.GetCurrInvoice(customerId)
 	if err != nil {
 		resWr.WriteHeader(err.StatusCode)
 		json.NewEncoder(resWr).Encode(err)

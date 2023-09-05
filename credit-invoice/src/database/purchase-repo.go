@@ -12,11 +12,11 @@ import (
 )
 
 type PurchaseRepo struct {
-	dynamoCli *dynamodb.DynamoDB
+	dynaClnt *dynamodb.DynamoDB
 }
 
-func NewPurchaseRepo(dynamoCli *dynamodb.DynamoDB) *PurchaseRepo {
-	return &PurchaseRepo{dynamoCli: dynamoCli}
+func NewPurchaseRepo(dynaClnt *dynamodb.DynamoDB) *PurchaseRepo {
+	return &PurchaseRepo{dynaClnt: dynaClnt}
 }
 
 func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
@@ -26,7 +26,7 @@ func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
 	}
 
 	// TODO: add some attribute exists restriction
-	_, err = repo.dynamoCli.PutItem(&dynamodb.PutItemInput{
+	_, err = repo.dynaClnt.PutItem(&dynamodb.PutItemInput{
 		Item:      item,
 		TableName: aws.String("purchases-table"),
 	})
@@ -51,7 +51,7 @@ func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commo
 		},
 	}
 
-	dynaOutput, err := repo.dynamoCli.Query(dynaInput)
+	dynaOutput, err := repo.dynaClnt.Query(dynaInput)
 	if err != nil {
 		return nil, &conf.AppError{
 			Message:    "Unknown error: " + err.Error(),
