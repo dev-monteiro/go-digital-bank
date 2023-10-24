@@ -1,8 +1,5 @@
 #!/bin/bash
 
-awslocal sqs create-queue --queue-name purchases-queue \
-    > /dev/null
-
 awslocal dynamodb create-table --table-name customers-table \
     --attribute-definitions AttributeName=Id,AttributeType=S AttributeName=CoreBankBatchId,AttributeType=N \
     --key-schema AttributeName=Id,KeyType=HASH \
@@ -21,4 +18,7 @@ awslocal dynamodb put-item --table-name customers-table \
     --item '{"Id": {"S": "abc-123-def"}, "CoreBankId": {"N": "123"}, "CoreBankBatchId": {"N": "789"}}' \
     > /dev/null
 
-echo "Setup completed"
+awslocal sqs create-queue --queue-name purchases-queue \
+   > /dev/null
+
+echo "setup completed!"

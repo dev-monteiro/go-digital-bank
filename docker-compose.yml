@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./credit-invoice/Dockerfile
     ports:
-      - "8096:80"
+      - "8080:80"
     volumes:
       - ./credit-invoice/src:/home/credit-invoice/src
       - ./commons:/home/commons
@@ -13,18 +13,9 @@ services:
       context: .
       dockerfile: ./core-banking-mock/Dockerfile
     ports:
-      - "8080:80"
-    volumes:
-      - ./core-banking-mock/src:/home/core-banking-mock/src
-      - ./commons:/home/commons
-  producer_mock:
-    build:
-      context: .
-      dockerfile: ./producer-mock/Dockerfile
-    ports:
       - "9090:80"
     volumes:
-      - ./producer-mock/src:/home/producer-mock/src
+      - ./core-banking-mock/src:/home/core-banking-mock/src
       - ./commons:/home/commons
   localstack:
     image: localstack/localstack

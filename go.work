@@ -4,5 +4,4 @@ use (
 	./commons
 	./core-banking-mock
 	./credit-invoice
-	./producer-mock
 )

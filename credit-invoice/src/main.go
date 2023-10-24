@@ -32,7 +32,7 @@ func setup() *tran.InvoiceCont {
 	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, transcRepo) })
 	invoCont := tran.NewInvoiceCont(invoServ)
 
-	fmt.Println("Setup completed")
+	fmt.Println("setup completed!")
 	return invoCont
 }
 
@@ -41,7 +41,7 @@ func setupWithRetry[T any](setupFunc func() (T, error)) T {
 		comp, err := setupFunc()
 
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("setting up...")
 			time.Sleep(5 * time.Second)
 			continue
 		}
