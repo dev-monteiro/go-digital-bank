@@ -1,7 +1,6 @@
 package database
 
 import (
-	"devv-monteiro/go-digital-bank/commons"
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	"net/http"
 	"strconv"
@@ -11,16 +10,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type PurchaseRepo struct {
+type TransactionRepo struct {
 	dynaClnt *dynamodb.DynamoDB
 }
 
-func NewPurchaseRepo(dynaClnt *dynamodb.DynamoDB) *PurchaseRepo {
-	return &PurchaseRepo{dynaClnt: dynaClnt}
+func NewTransactionRepo(dynaClnt *dynamodb.DynamoDB) *TransactionRepo {
+	return &TransactionRepo{dynaClnt: dynaClnt}
 }
 
-func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
-	item, err := dynamodbattribute.MarshalMap(purchase)
+func (repo *TransactionRepo) Save(trsac Transaction) error {
+	item, err := dynamodbattribute.MarshalMap(trsac)
 	if err != nil {
 		return err
 	}
@@ -28,7 +27,7 @@ func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
 	// TODO: add some attribute exists restriction
 	_, err = repo.dynaClnt.PutItem(&dynamodb.PutItemInput{
 		Item:      item,
-		TableName: aws.String("purchases-table"),
+		TableName: aws.String("transactions-table"),
 	})
 	if err != nil {
 		return err
@@ -37,17 +36,13 @@ func (repo *PurchaseRepo) Save(purchase commons.PurchaseEvent) error {
 	return nil
 }
 
-func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commons.PurchaseEvent, *conf.AppError) {
+func (repo *TransactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, *conf.AppError) {
 	dynaInput := &dynamodb.QueryInput{
-		TableName:              aws.String("purchases-table"),
-		KeyConditionExpression: aws.String("#creditAccountId = :creditAccountId"),
-		ExpressionAttributeNames: map[string]*string{
-			"#creditAccountId": aws.String("CreditAccountId"),
-		},
+		TableName:              aws.String("transactions-table"),
+		IndexName:              aws.String("customerCoreBankId-index"),
+		KeyConditionExpression: aws.String("CustomerCoreBankId = :custCoreBankId"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":creditAccountId": {
-				N: aws.String(strconv.Itoa(creditAccountId)),
-			},
+			":custCoreBankId": {N: aws.String(strconv.Itoa(custCoreBankId))},
 		},
 	}
 
@@ -59,8 +54,8 @@ func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commo
 		}
 	}
 
-	var purchases []commons.PurchaseEvent
-	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &purchases)
+	var transactions []Transaction
+	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &transactions)
 	if err != nil {
 		return nil, &conf.AppError{
 			Message:    "Unknown error: " + err.Error(),
@@ -68,5 +63,5 @@ func (repo *PurchaseRepo) FindAllByCreditAccountId(creditAccountId int) ([]commo
 		}
 	}
 
-	return purchases, nil
+	return transactions, nil
 }

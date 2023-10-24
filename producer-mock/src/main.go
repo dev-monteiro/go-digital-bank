@@ -72,7 +72,7 @@ func sendEvent(resWr http.ResponseWriter, req *http.Request) {
 		PurchaseId:          random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
-		Amount:              float32(random.Intn(10000) / 100),
+		Amount:              float64(random.Intn(10000) / 100),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",

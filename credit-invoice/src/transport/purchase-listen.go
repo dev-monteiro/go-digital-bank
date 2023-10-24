@@ -12,11 +12,11 @@ import (
 )
 
 type PurchaseListen struct {
-	sqsClnt   *sqs.SQS
-	purchRepo *data.PurchaseRepo
+	sqsClnt    *sqs.SQS
+	transcRepo *data.TransactionRepo
 }
 
-func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *data.PurchaseRepo) (*PurchaseListen, error) {
+func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*PurchaseListen, error) {
 	queueName := "purchases-queue"
 	sqsUrlInput := sqs.GetQueueUrlInput{
 		QueueName: &queueName,
@@ -53,7 +53,13 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *data.PurchaseRepo) (*Purchas
 				purch := comm.PurchaseEvent{}
 				json.Unmarshal([]byte(*msg.Body), &purch)
 
-				err := purchRepo.Save(purch)
+				transc := data.Transaction{
+					PurchaseId:         purch.PurchaseId,
+					CustomerCoreBankId: purch.CreditAccountId,
+					Amount:             purch.Amount,
+				}
+
+				err := transcRepo.Save(transc)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -72,7 +78,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, purchRepo *data.PurchaseRepo) (*Purchas
 	}()
 
 	return &PurchaseListen{
-		sqsClnt:   sqsClnt,
-		purchRepo: purchRepo,
+		sqsClnt:    sqsClnt,
+		transcRepo: transcRepo,
 	}, nil
 }

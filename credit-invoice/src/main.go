@@ -25,12 +25,11 @@ func setup() *tran.InvoiceCont {
 	dynaClnt := setupWithRetry(conf.NewDynamoClnt)
 
 	custRepo := data.NewCustomerRepo(dynaClnt)
-	purchRepo := data.NewPurchaseRepo(dynaClnt)
-	invoRepo := data.NewInvoiceRepo(dynaClnt)
+	transcRepo := data.NewTransactionRepo(dynaClnt)
 
-	invoServ := busi.NewInvoiceServ(custRepo, purchRepo, invoRepo)
+	invoServ := busi.NewInvoiceServ(custRepo, transcRepo)
 
-	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, purchRepo) })
+	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, transcRepo) })
 	invoCont := tran.NewInvoiceCont(invoServ)
 
 	fmt.Println("Setup completed")

@@ -7,7 +7,7 @@ type CoreBankInvoiceResp struct {
 	DueDate             string
 	ActualDueDate       string
 	ClosingDate         string
-	TotalAmount         float32
+	TotalAmount         float64
 	InvoiceId           int
 }
 
@@ -19,7 +19,7 @@ type PurchaseEvent struct {
 	PurchaseId          int
 	CreditAccountId     int
 	PurchaseDateTime    string
-	Amount              float32
+	Amount              float64
 	NumInstallments     int
 	MerchantDescription string
 	Status              string
