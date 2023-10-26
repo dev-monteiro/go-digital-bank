@@ -3,7 +3,7 @@ package main
 import (
 	"devv-monteiro/go-digital-bank/commons"
 	"encoding/json"
-	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -21,7 +21,7 @@ var random *rand.Rand
 func main() {
 	setup()
 
-	fmt.Println("setup completed!")
+	log.Println("[Mock] Setup completed!")
 
 	http.HandleFunc("/invoices", getInvoices)
 	http.HandleFunc("/trigger/purchase", createPurchase)
@@ -37,7 +37,7 @@ func setup() {
 			break
 		}
 
-		fmt.Println("setting up...")
+		log.Println("[Mock] Setting up...")
 		time.Sleep(5 * time.Second)
 	}
 
@@ -70,10 +70,12 @@ func setupSqs() error {
 }
 
 func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
+	log.Println("[Mock] GetInvoices")
+
 	request.ParseForm()
 	creditAccountId := request.Form.Get("creditAccountId")
 
-	fmt.Println("CreditAccountId: " + creditAccountId)
+	log.Println("[Mock] CreditAccountId: " + creditAccountId)
 	if creditAccountId != "123" {
 		resWriter.WriteHeader(http.StatusBadRequest)
 		return
@@ -109,6 +111,8 @@ func genDueDate(dueDay int) string {
 }
 
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
+	log.Println("[Mock] CreatePurchase")
+
 	event := commons.PurchaseEvent{
 		PurchaseId:          random.Intn(10000),
 		CreditAccountId:     123,
@@ -122,7 +126,7 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	body, err := json.Marshal(event)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		resWr.WriteHeader(500)
 		return
 	}
@@ -133,7 +137,7 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	})
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		resWr.WriteHeader(500)
 		return
 	}

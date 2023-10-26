@@ -6,6 +6,7 @@ import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -27,6 +28,8 @@ func NewInvoiceServ(custRepo *data.CustomerRepo, transcRepo *data.TransactionRep
 }
 
 func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.AppError) {
+	log.Println("[InvoiceServ] GetCurrInvoice")
+
 	cust, err := serv.custRepo.FindById(custId)
 	if err != nil {
 		return nil, err
@@ -65,6 +68,8 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 }
 
 func (InvoiceServ) getCoreBankInvoices(custCoreBankId int) ([]comm.CoreBankInvoiceResp, *conf.AppError) {
+	log.Println("[InvoiceServ] GetCoreBankInvoices")
+
 	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(custCoreBankId)
 
 	resp, err := http.Get(url)
@@ -81,6 +86,8 @@ func (InvoiceServ) getCoreBankInvoices(custCoreBankId int) ([]comm.CoreBankInvoi
 }
 
 func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (*commons.CoreBankInvoiceResp, *conf.AppError) {
+	log.Println("[InvoiceServ] GetCurrInvoice")
+
 	var openInvo commons.CoreBankInvoiceResp
 
 	for _, invo := range invoArr {
@@ -102,6 +109,8 @@ func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (
 	return &openInvo, nil
 }
 func (serv *InvoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount float64) (float64, *conf.AppError) {
+	log.Println("[InvoiceServ] UpdateInvoiceAmount")
+
 	transcArr, err := serv.transcRepo.FindAllByCustomerCoreBankId(custCoreBankId)
 
 	if err != nil {
@@ -115,6 +124,8 @@ func (serv *InvoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount floa
 }
 
 func (InvoiceServ) convertClosingDate(closingDate string) (string, *conf.AppError) {
+	log.Println("[InvoiceServ] ConvertClosingDate")
+
 	parsedDate, err := time.Parse(time.DateOnly, closingDate)
 	if err != nil {
 		return "", &conf.AppError{

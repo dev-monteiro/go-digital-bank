@@ -3,7 +3,7 @@ package transport
 import (
 	"devv-monteiro/go-digital-bank/credit-invoice/src/business"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -12,11 +12,13 @@ type InvoiceCont struct {
 }
 
 func NewInvoiceCont(serv *business.InvoiceServ) *InvoiceCont {
-	return &InvoiceCont{serv: serv}
+	cont := &InvoiceCont{serv: serv}
+	http.HandleFunc("/invoices/current", cont.GetCurrInvoice)
+	return cont
 }
 
 func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Request) {
-	fmt.Println("Path: " + req.URL.Path)
+	log.Println("[InvoiceCont] GetCurrInvoice")
 
 	resWr.Header().Set("Content-Type", "application/json")
 
@@ -27,7 +29,8 @@ func (cont *InvoiceCont) GetCurrInvoice(resWr http.ResponseWriter, req *http.Req
 
 	req.ParseForm()
 	customerId := req.Form.Get("customerId")
-	fmt.Println("CustomerId: " + customerId)
+	log.Println("[InvoiceCont] CustomerId: " + customerId)
+
 	if customerId == "" {
 		resWr.WriteHeader(http.StatusBadRequest)
 		return

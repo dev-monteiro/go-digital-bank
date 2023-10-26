@@ -1,5 +1,6 @@
 services:
   credit_invoice:
+    container_name: credit_invoice
     build:
       context: .
       dockerfile: ./credit-invoice/Dockerfile
@@ -9,6 +10,7 @@ services:
       - ./credit-invoice/src:/home/credit-invoice/src
       - ./commons:/home/commons
   core_banking_mock:
+    container_name: core_banking_mock
     build:
       context: .
       dockerfile: ./core-banking-mock/Dockerfile
@@ -18,10 +20,11 @@ services:
       - ./core-banking-mock/src:/home/core-banking-mock/src
       - ./commons:/home/commons
   localstack:
+    container_name: localstack
     image: localstack/localstack
     ports:
-      - "4566:4566"
-      - "4510-4559:4510-4559"
+      - "44566:4566"
+      - "44510-44559:4510-4559"
     environment:
       - LS_LOG=error
       - DOCKER_HOST=unix:///var/run/docker.sock

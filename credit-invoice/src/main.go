@@ -5,22 +5,20 @@ import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	tran "devv-monteiro/go-digital-bank/credit-invoice/src/transport"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
 
-// TODO: use some real logging library
 // TODO: use best practices for constants and env variables
+// TODO: analyze concurrent behaviour
 func main() {
-	invoCont := setup()
-
-	http.HandleFunc("/invoices/current", invoCont.GetCurrInvoice)
+	setupComponents()
 
 	http.ListenAndServe(":80", nil)
 }
 
-func setup() *tran.InvoiceCont {
+func setupComponents() {
 	sqsClnt := setupWithRetry(conf.NewSqsClnt)
 	dynaClnt := setupWithRetry(conf.NewDynamoClnt)
 
@@ -30,10 +28,9 @@ func setup() *tran.InvoiceCont {
 	invoServ := busi.NewInvoiceServ(custRepo, transcRepo)
 
 	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, transcRepo) })
-	invoCont := tran.NewInvoiceCont(invoServ)
+	tran.NewInvoiceCont(invoServ)
 
-	fmt.Println("setup completed!")
-	return invoCont
+	log.Println("[Main] Setup completed!")
 }
 
 func setupWithRetry[T any](setupFunc func() (T, error)) T {
@@ -41,7 +38,7 @@ func setupWithRetry[T any](setupFunc func() (T, error)) T {
 		comp, err := setupFunc()
 
 		if err != nil {
-			fmt.Println("setting up...")
+			log.Println("[Main] Setting up...")
 			time.Sleep(5 * time.Second)
 			continue
 		}

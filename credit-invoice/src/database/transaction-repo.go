@@ -2,6 +2,7 @@ package database
 
 import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -19,6 +20,8 @@ func NewTransactionRepo(dynaClnt *dynamodb.DynamoDB) *TransactionRepo {
 }
 
 func (repo *TransactionRepo) Save(trsac Transaction) error {
+	log.Println("[TransactionRepo] Save")
+
 	item, err := dynamodbattribute.MarshalMap(trsac)
 	if err != nil {
 		return err
@@ -37,6 +40,8 @@ func (repo *TransactionRepo) Save(trsac Transaction) error {
 }
 
 func (repo *TransactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, *conf.AppError) {
+	log.Println("[TransactionRepo] FindAllByCustomerCoreBankId")
+
 	dynaInput := &dynamodb.QueryInput{
 		TableName:              aws.String("transactions-table"),
 		IndexName:              aws.String("customerCoreBankId-index"),

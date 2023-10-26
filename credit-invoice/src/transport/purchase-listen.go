@@ -4,7 +4,7 @@ import (
 	comm "devv-monteiro/go-digital-bank/commons"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -38,7 +38,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 
 			sqsRecvOutput, err := sqsClnt.ReceiveMessage(&sqsRecvInput)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 
 			if len(sqsRecvOutput.Messages) == 0 {
@@ -49,6 +49,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 				if aws.StringValue(msg.Body) == "" {
 					continue
 				}
+				log.Println("[PurchaseListen] Event received")
 
 				purch := comm.PurchaseEvent{}
 				json.Unmarshal([]byte(*msg.Body), &purch)
@@ -61,7 +62,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 
 				err := transcRepo.Save(transc)
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 				}
 
 				sqsDelInput := sqs.DeleteMessageInput{
@@ -71,7 +72,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 
 				_, err = sqsClnt.DeleteMessage(&sqsDelInput)
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 				}
 			}
 		}

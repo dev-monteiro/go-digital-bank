@@ -21,4 +21,4 @@ awslocal dynamodb put-item --table-name customers-table \
 awslocal sqs create-queue --queue-name purchases-queue \
    > /dev/null
 
-echo "setup completed!"
+echo "Setup completed!"

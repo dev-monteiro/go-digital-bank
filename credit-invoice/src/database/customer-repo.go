@@ -2,6 +2,7 @@ package database
 
 import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -18,6 +19,8 @@ func NewCustomerRepo(dynamoClnt *dynamodb.DynamoDB) *CustomerRepo {
 }
 
 func (repo *CustomerRepo) FindById(id string) (*Customer, *conf.AppError) {
+	log.Println("[CustomerRepo] FindById")
+
 	dynaInput := dynamodb.GetItemInput{
 		TableName: aws.String("customers-table"),
 		Key: map[string]*dynamodb.AttributeValue{
