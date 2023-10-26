@@ -4,6 +4,7 @@ import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -11,18 +12,20 @@ import (
 )
 
 type CustomerRepo struct {
-	dynaClnt *dynamodb.DynamoDB
+	dynaClnt  *dynamodb.DynamoDB
+	tableName *string
 }
 
 func NewCustomerRepo(dynamoClnt *dynamodb.DynamoDB) *CustomerRepo {
-	return &CustomerRepo{dynaClnt: dynamoClnt}
+	tableName := aws.String(os.Getenv("AWS_CUSTOMERS_TABLE_NAME"))
+	return &CustomerRepo{dynaClnt: dynamoClnt, tableName: tableName}
 }
 
 func (repo *CustomerRepo) FindById(id string) (*Customer, *conf.AppError) {
 	log.Println("[CustomerRepo] FindById")
 
 	dynaInput := dynamodb.GetItemInput{
-		TableName: aws.String("customers-table"),
+		TableName: repo.tableName,
 		Key: map[string]*dynamodb.AttributeValue{
 			"Id": {
 				S: aws.String(id),

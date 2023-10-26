@@ -7,6 +7,7 @@ import (
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -70,7 +71,8 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 func (InvoiceServ) getCoreBankInvoices(custCoreBankId int) ([]comm.CoreBankInvoiceResp, *conf.AppError) {
 	log.Println("[InvoiceServ] GetCoreBankInvoices")
 
-	url := "http://core_banking_mock/invoices?creditAccountId=" + strconv.Itoa(custCoreBankId)
+	url := "http://" + os.Getenv("CORE_BANKING_HOST") + "/invoices"
+	url = url + "?creditAccountId=" + strconv.Itoa(custCoreBankId)
 
 	resp, err := http.Get(url)
 	if err != nil {

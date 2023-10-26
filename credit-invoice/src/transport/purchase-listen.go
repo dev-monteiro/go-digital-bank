@@ -5,6 +5,7 @@ import (
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"encoding/json"
 	"log"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -17,7 +18,7 @@ type PurchaseListen struct {
 }
 
 func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*PurchaseListen, error) {
-	queueName := "purchases-queue"
+	queueName := os.Getenv("AWS_PURCHASES_QUEUE_NAME")
 	sqsUrlInput := sqs.GetQueueUrlInput{
 		QueueName: &queueName,
 	}

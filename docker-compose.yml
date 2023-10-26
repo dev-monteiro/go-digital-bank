@@ -6,6 +6,15 @@ services:
       dockerfile: ./credit-invoice/Dockerfile
     ports:
       - "8080:80"
+    environment:
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_LOGIN=test
+      - AWS_PASS=test
+      - AWS_CUSTOMERS_TABLE_NAME=local-customers-table
+      - AWS_TRANSACTIONS_TABLE_NAME=local-transactions-table
+      - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
+      - CORE_BANKING_HOST=core_banking_mock
     volumes:
       - ./credit-invoice/src:/home/credit-invoice/src
       - ./commons:/home/commons
@@ -16,6 +25,12 @@ services:
       dockerfile: ./core-banking-mock/Dockerfile
     ports:
       - "9090:80"
+    environment:
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_LOGIN=test
+      - AWS_PASS=test
+      - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
     volumes:
       - ./core-banking-mock/src:/home/core-banking-mock/src
       - ./commons:/home/commons
@@ -23,8 +38,8 @@ services:
     container_name: localstack
     image: localstack/localstack
     ports:
-      - "44566:4566"
-      - "44510-44559:4510-4559"
+      - "4566:4566"
+      - "4510-4559:4510-4559"
     environment:
       - LS_LOG=error
       - DOCKER_HOST=unix:///var/run/docker.sock

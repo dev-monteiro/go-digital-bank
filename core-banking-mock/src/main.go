@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -46,9 +47,9 @@ func setup() {
 
 func setupSqs() error {
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String("us-east-1"),
-		Credentials: credentials.NewStaticCredentials("test", "test", ""),
-		Endpoint:    aws.String("http://localstack:4566"),
+		Region:      aws.String(os.Getenv("AWS_REGION")),
+		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_LOGIN"), os.Getenv("AWS_PASS"), ""),
+		Endpoint:    aws.String(os.Getenv("AWS_ENDPOINT")),
 	})
 
 	if err != nil {
@@ -56,7 +57,7 @@ func setupSqs() error {
 	}
 	sqsClient = sqs.New(sess)
 
-	queueName := "purchases-queue"
+	queueName := os.Getenv("AWS_PURCHASES_QUEUE_NAME")
 	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
 		QueueName: &queueName,
 	})
