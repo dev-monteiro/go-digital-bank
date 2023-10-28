@@ -71,15 +71,12 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 func (InvoiceServ) getCoreBankInvoices(custCoreBankId int) ([]comm.CoreBankInvoiceResp, *conf.AppError) {
 	log.Println("[InvoiceServ] GetCoreBankInvoices")
 
-	url := "http://" + os.Getenv("CORE_BANKING_HOST") + "/invoices"
+	url := os.Getenv("CORE_BANKING_HOST") + "/invoices"
 	url = url + "?creditAccountId=" + strconv.Itoa(custCoreBankId)
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return nil, conf.NewUnknownError(err)
 	}
 
 	var invoListResp comm.CoreBankInvoiceListResp
@@ -95,10 +92,7 @@ func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (
 	for _, invo := range invoArr {
 		dueDate, err := time.Parse(time.DateOnly, invo.ActualDueDate)
 		if err != nil {
-			return nil, &conf.AppError{
-				Message:    "Unknown error: " + err.Error(),
-				StatusCode: http.StatusInternalServerError,
-			}
+			return nil, conf.NewUnknownError(err)
 		}
 
 		if invo.ProcessingSituation == "CLOSED" && !dueDate.Before(time.Now().Truncate(24*time.Hour)) {
@@ -130,10 +124,7 @@ func (InvoiceServ) convertClosingDate(closingDate string) (string, *conf.AppErro
 
 	parsedDate, err := time.Parse(time.DateOnly, closingDate)
 	if err != nil {
-		return "", &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return "", conf.NewUnknownError(err)
 	}
 
 	return strings.ToUpper(parsedDate.Format("Jan 02")), nil

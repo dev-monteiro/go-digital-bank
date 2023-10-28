@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// TODO: use best practices for constants and env variables
 // TODO: analyze concurrent behaviour
 func main() {
 	setupComponents()

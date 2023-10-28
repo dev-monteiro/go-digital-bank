@@ -63,7 +63,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 
 				err := transcRepo.Save(transc)
 				if err != nil {
-					log.Println(err)
+					log.Println("[PurchaseListen] " + err.Error())
 				}
 
 				sqsDelInput := sqs.DeleteMessageInput{
@@ -73,7 +73,7 @@ func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*Pur
 
 				_, err = sqsClnt.DeleteMessage(&sqsDelInput)
 				if err != nil {
-					log.Println(err)
+					log.Println("[PurchaseListen] " + err.Error())
 				}
 			}
 		}

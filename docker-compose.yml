@@ -14,7 +14,7 @@ services:
       - AWS_CUSTOMERS_TABLE_NAME=local-customers-table
       - AWS_TRANSACTIONS_TABLE_NAME=local-transactions-table
       - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
-      - CORE_BANKING_HOST=core_banking_mock
+      - CORE_BANKING_HOST=http://core_banking_mock
     volumes:
       - ./credit-invoice/src:/home/credit-invoice/src
       - ./commons:/home/commons

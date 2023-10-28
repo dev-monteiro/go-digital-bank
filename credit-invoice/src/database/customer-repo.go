@@ -48,10 +48,7 @@ func (repo *CustomerRepo) FindById(id string) (*Customer, *conf.AppError) {
 	cust := Customer{}
 	err = dynamodbattribute.UnmarshalMap(dynaOutput.Item, &cust)
 	if err != nil {
-		return nil, &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return nil, conf.NewUnknownError(err)
 	}
 
 	return &cust, nil

@@ -3,7 +3,6 @@ package database
 import (
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -22,10 +21,10 @@ func NewTransactionRepo(dynaClnt *dynamodb.DynamoDB) *TransactionRepo {
 	return &TransactionRepo{dynaClnt: dynaClnt, tableName: tableName}
 }
 
-func (repo *TransactionRepo) Save(trsac Transaction) error {
+func (repo *TransactionRepo) Save(transc Transaction) error {
 	log.Println("[TransactionRepo] Save")
 
-	item, err := dynamodbattribute.MarshalMap(trsac)
+	item, err := dynamodbattribute.MarshalMap(transc)
 	if err != nil {
 		return err
 	}
@@ -56,19 +55,13 @@ func (repo *TransactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]
 
 	dynaOutput, err := repo.dynaClnt.Query(dynaInput)
 	if err != nil {
-		return nil, &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return nil, conf.NewUnknownError(err)
 	}
 
 	var transactions []Transaction
 	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &transactions)
 	if err != nil {
-		return nil, &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return nil, conf.NewUnknownError(err)
 	}
 
 	return transactions, nil
