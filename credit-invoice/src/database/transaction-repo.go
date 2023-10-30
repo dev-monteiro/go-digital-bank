@@ -34,10 +34,10 @@ func (repo *transactionRepo) Save(transc Transaction) error {
 		return err
 	}
 
-	// TODO: add some attribute exists restriction
 	_, err = repo.dynaConn.PutItem(&dynamodb.PutItemInput{
-		Item:      item,
-		TableName: repo.tableName,
+		Item:                item,
+		TableName:           repo.tableName,
+		ConditionExpression: aws.String("attribute_not_exists(PurchaseId)"),
 	})
 	if err != nil {
 		return err
