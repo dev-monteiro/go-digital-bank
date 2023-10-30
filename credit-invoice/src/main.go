@@ -2,7 +2,7 @@ package main
 
 import (
 	busi "devv-monteiro/go-digital-bank/credit-invoice/src/business"
-	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	tran "devv-monteiro/go-digital-bank/credit-invoice/src/transport"
 	"log"
@@ -18,15 +18,16 @@ func main() {
 }
 
 func setupComponents() {
-	sqsClnt := setupWithRetry(conf.NewSqsClnt)
-	dynaClnt := setupWithRetry(conf.NewDynamoClnt)
+	sqsConn := setupWithRetry(conn.NewSqsConn)
+	dynaConn := setupWithRetry(conn.NewDynamoConn)
+	coreBankConn := conn.NewCoreBankConn()
 
-	custRepo := data.NewCustomerRepo(dynaClnt)
-	transcRepo := data.NewTransactionRepo(dynaClnt)
+	custRepo := data.NewCustomerRepo(dynaConn)
+	transcRepo := data.NewTransactionRepo(dynaConn)
 
-	invoServ := busi.NewInvoiceServ(custRepo, transcRepo)
+	invoServ := busi.NewInvoiceServ(custRepo, transcRepo, coreBankConn)
 
-	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsClnt, transcRepo) })
+	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsConn, transcRepo) })
 	tran.NewInvoiceCont(invoServ)
 
 	log.Println("[Main] Setup completed!")

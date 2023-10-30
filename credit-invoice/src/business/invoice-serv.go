@@ -2,61 +2,66 @@ package business
 
 import (
 	"devv-monteiro/go-digital-bank/commons"
-	comm "devv-monteiro/go-digital-bank/commons"
 	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"strings"
 	"time"
-
-	"encoding/json"
-	"net/http"
-	"strconv"
 )
 
-type InvoiceServ struct {
-	custRepo   *data.CustomerRepo
-	transcRepo *data.TransactionRepo
+type InvoiceServ interface {
+	GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.AppError)
 }
 
-func NewInvoiceServ(custRepo *data.CustomerRepo, transcRepo *data.TransactionRepo) *InvoiceServ {
-	return &InvoiceServ{
-		custRepo:   custRepo,
-		transcRepo: transcRepo,
+type invoiceServ struct {
+	custRepo     data.CustomerRepo
+	transcRepo   data.TransactionRepo
+	coreBankConn conn.CoreBankConn
+}
+
+func NewInvoiceServ(custRepo data.CustomerRepo, transcRepo data.TransactionRepo, coreBankConn conn.CoreBankConn) InvoiceServ {
+	return &invoiceServ{
+		custRepo:     custRepo,
+		transcRepo:   transcRepo,
+		coreBankConn: coreBankConn,
 	}
 }
 
-func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.AppError) {
+func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.AppError) {
 	log.Println("[InvoiceServ] GetCurrInvoice")
 
 	cust, err := serv.custRepo.FindById(custId)
+	if cust == nil {
+		return nil, &conf.AppError{Message: "Customer not found.", StatusCode: http.StatusNotFound}
+	}
 	if err != nil {
-		return nil, err
+		return nil, conf.NewUnknownError(err)
 	}
 
-	invoArr, err := serv.getCoreBankInvoices(cust.CoreBankId)
+	invoArr, err := serv.coreBankConn.GetAllInvoices(cust.CoreBankId)
 	if err != nil {
-		return nil, err
+		return nil, conf.NewUnknownError(err) // TODO: improve error handling
 	}
 
 	invo, err := serv.getCurrInvoice(invoArr)
 	if err != nil {
-		return nil, err
+		return nil, conf.NewUnknownError(err)
 	}
 
 	amount := invo.TotalAmount
 	if invo.ProcessingSituation == "OPEN" {
 		amount, err = serv.updateInvoiceAmount(cust.CoreBankId, amount)
 		if err != nil {
-			return nil, err
+			return nil, conf.NewUnknownError(err)
 		}
 	}
 
 	closDate, err := serv.convertClosingDate(invo.ClosingDate)
 	if err != nil {
-		return nil, err
+		return nil, conf.NewUnknownError(err)
 	}
 
 	resp := CurrInvoiceResp{
@@ -68,23 +73,7 @@ func (serv *InvoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	return &resp, nil
 }
 
-func (InvoiceServ) getCoreBankInvoices(custCoreBankId int) ([]comm.CoreBankInvoiceResp, *conf.AppError) {
-	log.Println("[InvoiceServ] GetCoreBankInvoices")
-
-	url := os.Getenv("CORE_BANKING_HOST") + "/invoices"
-	url = url + "?creditAccountId=" + strconv.Itoa(custCoreBankId)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, conf.NewUnknownError(err)
-	}
-
-	var invoListResp comm.CoreBankInvoiceListResp
-	json.NewDecoder(resp.Body).Decode(&invoListResp)
-	return invoListResp.Invoices, nil
-}
-
-func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (*commons.CoreBankInvoiceResp, *conf.AppError) {
+func (serv *invoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (*commons.CoreBankInvoiceResp, error) {
 	log.Println("[InvoiceServ] GetCurrInvoice")
 
 	var openInvo commons.CoreBankInvoiceResp
@@ -92,7 +81,7 @@ func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (
 	for _, invo := range invoArr {
 		dueDate, err := time.Parse(time.DateOnly, invo.ActualDueDate)
 		if err != nil {
-			return nil, conf.NewUnknownError(err)
+			return nil, err
 		}
 
 		if invo.ProcessingSituation == "CLOSED" && !dueDate.Before(time.Now().Truncate(24*time.Hour)) {
@@ -104,7 +93,7 @@ func (serv *InvoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (
 
 	return &openInvo, nil
 }
-func (serv *InvoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount float64) (float64, *conf.AppError) {
+func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount float64) (float64, error) {
 	log.Println("[InvoiceServ] UpdateInvoiceAmount")
 
 	transcArr, err := serv.transcRepo.FindAllByCustomerCoreBankId(custCoreBankId)
@@ -119,12 +108,12 @@ func (serv *InvoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount floa
 	return invoAmount, nil
 }
 
-func (InvoiceServ) convertClosingDate(closingDate string) (string, *conf.AppError) {
+func (serv *invoiceServ) convertClosingDate(closingDate string) (string, error) {
 	log.Println("[InvoiceServ] ConvertClosingDate")
 
 	parsedDate, err := time.Parse(time.DateOnly, closingDate)
 	if err != nil {
-		return "", conf.NewUnknownError(err)
+		return "", err
 	}
 
 	return strings.ToUpper(parsedDate.Format("Jan 02")), nil

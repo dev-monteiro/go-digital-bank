@@ -2,6 +2,7 @@ package transport
 
 import (
 	comm "devv-monteiro/go-digital-bank/commons"
+	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
 	"encoding/json"
 	"log"
@@ -13,11 +14,11 @@ import (
 )
 
 type PurchaseListen struct {
-	sqsClnt    *sqs.SQS
-	transcRepo *data.TransactionRepo
+	sqsClnt    conn.SqsConn
+	transcRepo data.TransactionRepo
 }
 
-func NewPurchaseListen(sqsClnt *sqs.SQS, transcRepo *data.TransactionRepo) (*PurchaseListen, error) {
+func NewPurchaseListen(sqsClnt conn.SqsConn, transcRepo data.TransactionRepo) (*PurchaseListen, error) {
 	queueName := os.Getenv("AWS_PURCHASES_QUEUE_NAME")
 	sqsUrlInput := sqs.GetQueueUrlInput{
 		QueueName: &queueName,

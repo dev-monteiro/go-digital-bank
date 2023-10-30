@@ -1,7 +1,7 @@
 package database
 
 import (
-	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
 	"log"
 	"os"
 	"strconv"
@@ -11,17 +11,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type TransactionRepo struct {
-	dynaClnt  *dynamodb.DynamoDB
+type TransactionRepo interface {
+	Save(transc Transaction) error
+	FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, error)
+}
+
+type transactionRepo struct {
+	dynaConn  conn.DynamoConn
 	tableName *string
 }
 
-func NewTransactionRepo(dynaClnt *dynamodb.DynamoDB) *TransactionRepo {
+func NewTransactionRepo(dynaConn conn.DynamoConn) TransactionRepo {
 	tableName := aws.String(os.Getenv("AWS_TRANSACTIONS_TABLE_NAME"))
-	return &TransactionRepo{dynaClnt: dynaClnt, tableName: tableName}
+	return &transactionRepo{dynaConn: dynaConn, tableName: tableName}
 }
 
-func (repo *TransactionRepo) Save(transc Transaction) error {
+func (repo *transactionRepo) Save(transc Transaction) error {
 	log.Println("[TransactionRepo] Save")
 
 	item, err := dynamodbattribute.MarshalMap(transc)
@@ -30,7 +35,7 @@ func (repo *TransactionRepo) Save(transc Transaction) error {
 	}
 
 	// TODO: add some attribute exists restriction
-	_, err = repo.dynaClnt.PutItem(&dynamodb.PutItemInput{
+	_, err = repo.dynaConn.PutItem(&dynamodb.PutItemInput{
 		Item:      item,
 		TableName: repo.tableName,
 	})
@@ -41,7 +46,7 @@ func (repo *TransactionRepo) Save(transc Transaction) error {
 	return nil
 }
 
-func (repo *TransactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, *conf.AppError) {
+func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, error) {
 	log.Println("[TransactionRepo] FindAllByCustomerCoreBankId")
 
 	dynaInput := &dynamodb.QueryInput{
@@ -53,15 +58,15 @@ func (repo *TransactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]
 		},
 	}
 
-	dynaOutput, err := repo.dynaClnt.Query(dynaInput)
+	dynaOutput, err := repo.dynaConn.Query(dynaInput)
 	if err != nil {
-		return nil, conf.NewUnknownError(err)
+		return nil, err
 	}
 
 	var transactions []Transaction
 	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &transactions)
 	if err != nil {
-		return nil, conf.NewUnknownError(err)
+		return nil, err
 	}
 
 	return transactions, nil

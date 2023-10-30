@@ -1,4 +1,4 @@
-package configuration
+package connector
 
 import (
 	"os"
@@ -10,7 +10,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-func NewDynamoClnt() (*dynamodb.DynamoDB, error) {
+type DynamoConn interface {
+	PutItem(input *dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error)
+	Query(input *dynamodb.QueryInput) (*dynamodb.QueryOutput, error)
+	GetItem(input *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error)
+}
+
+func NewDynamoConn() (DynamoConn, error) {
 	sess, err := session.NewSession(newAwsConfig())
 
 	if err != nil {
@@ -20,7 +26,13 @@ func NewDynamoClnt() (*dynamodb.DynamoDB, error) {
 	return dynamodb.New(sess), nil
 }
 
-func NewSqsClnt() (*sqs.SQS, error) {
+type SqsConn interface {
+	GetQueueUrl(input *sqs.GetQueueUrlInput) (*sqs.GetQueueUrlOutput, error)
+	ReceiveMessage(input *sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error)
+	DeleteMessage(input *sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error)
+}
+
+func NewSqsConn() (SqsConn, error) {
 	sess, err := session.NewSession(newAwsConfig())
 
 	if err != nil {

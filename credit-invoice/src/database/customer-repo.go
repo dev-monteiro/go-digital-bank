@@ -1,9 +1,8 @@
 package database
 
 import (
-	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,17 +10,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type CustomerRepo struct {
-	dynaClnt  *dynamodb.DynamoDB
+type CustomerRepo interface {
+	FindById(id string) (*Customer, error)
+}
+
+type customerRepo struct {
+	dynaConn  conn.DynamoConn
 	tableName *string
 }
 
-func NewCustomerRepo(dynamoClnt *dynamodb.DynamoDB) *CustomerRepo {
+func NewCustomerRepo(dynaConn conn.DynamoConn) CustomerRepo {
 	tableName := aws.String(os.Getenv("AWS_CUSTOMERS_TABLE_NAME"))
-	return &CustomerRepo{dynaClnt: dynamoClnt, tableName: tableName}
+	return &customerRepo{dynaConn: dynaConn, tableName: tableName}
 }
 
-func (repo *CustomerRepo) FindById(id string) (*Customer, *conf.AppError) {
+func (repo *customerRepo) FindById(id string) (*Customer, error) {
 	log.Println("[CustomerRepo] FindById")
 
 	dynaInput := dynamodb.GetItemInput{
@@ -33,22 +36,19 @@ func (repo *CustomerRepo) FindById(id string) (*Customer, *conf.AppError) {
 		},
 	}
 
-	dynaOutput, err := repo.dynaClnt.GetItem(&dynaInput)
+	dynaOutput, err := repo.dynaConn.GetItem(&dynaInput)
 	if err != nil {
-		return nil, &conf.AppError{
-			Message:    "Unknown error: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return nil, err
 	}
 
 	if dynaOutput.Item == nil {
-		return nil, &conf.AppError{Message: "Customer not found.", StatusCode: http.StatusNotFound}
+		return nil, nil
 	}
 
 	cust := Customer{}
 	err = dynamodbattribute.UnmarshalMap(dynaOutput.Item, &cust)
 	if err != nil {
-		return nil, conf.NewUnknownError(err)
+		return nil, err
 	}
 
 	return &cust, nil

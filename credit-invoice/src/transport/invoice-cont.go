@@ -8,10 +8,10 @@ import (
 )
 
 type InvoiceCont struct {
-	serv *business.InvoiceServ
+	serv business.InvoiceServ
 }
 
-func NewInvoiceCont(serv *business.InvoiceServ) *InvoiceCont {
+func NewInvoiceCont(serv business.InvoiceServ) *InvoiceCont {
 	cont := &InvoiceCont{serv: serv}
 	http.HandleFunc("/invoices/current", cont.GetCurrInvoice)
 	return cont
