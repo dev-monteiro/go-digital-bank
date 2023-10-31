@@ -1,17 +1,17 @@
 package transport
 
 import (
-	"devv-monteiro/go-digital-bank/credit-invoice/src/business"
+	busn "devv-monteiro/go-digital-bank/credit-invoice/src/business"
 	"encoding/json"
 	"log"
 	"net/http"
 )
 
 type InvoiceCont struct {
-	serv business.InvoiceServ
+	serv busn.InvoiceServ
 }
 
-func NewInvoiceCont(serv business.InvoiceServ) *InvoiceCont {
+func NewInvoiceCont(serv busn.InvoiceServ) *InvoiceCont {
 	cont := &InvoiceCont{serv: serv}
 	http.HandleFunc("/invoices/current", cont.GetCurrInvoice)
 	return cont

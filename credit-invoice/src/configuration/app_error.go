@@ -9,6 +9,8 @@ type AppError struct {
 	StatusCode int
 }
 
+const CUSTOMER_NOT_FOUND string = "Customer not found."
+
 func (appErr *AppError) Error() string {
 	return appErr.Message
 }

@@ -34,11 +34,11 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	log.Println("[InvoiceServ] GetCurrInvoice")
 
 	cust, err := serv.custRepo.FindById(custId)
-	if cust == nil {
-		return nil, &conf.AppError{Message: "Customer not found.", StatusCode: http.StatusNotFound}
-	}
 	if err != nil {
 		return nil, conf.NewUnknownError(err)
+	}
+	if cust == nil {
+		return nil, &conf.AppError{Message: conf.CUSTOMER_NOT_FOUND, StatusCode: http.StatusNotFound}
 	}
 
 	invoArr, err := serv.coreBankConn.GetAllInvoices(cust.CoreBankId)
