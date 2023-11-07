@@ -1,11 +1,11 @@
 package business_test
 
 import (
-	comm "devv-monteiro/go-digital-bank/commons"
-	mock_imp "devv-monteiro/go-digital-bank/credit-invoice/mock"
-	busn "devv-monteiro/go-digital-bank/credit-invoice/src/business"
-	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
-	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	comm "dev-monteiro/go-digital-bank/commons"
+	mock_imp "dev-monteiro/go-digital-bank/credit-invoice/mock"
+	busn "dev-monteiro/go-digital-bank/credit-invoice/src/business"
+	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
 	"errors"
 	"net/http"
 	"testing"

@@ -1,10 +1,10 @@
 package business
 
 import (
-	"devv-monteiro/go-digital-bank/commons"
-	conf "devv-monteiro/go-digital-bank/credit-invoice/src/configuration"
-	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
-	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	"dev-monteiro/go-digital-bank/commons"
+	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
+	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
+	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
 	"fmt"
 	"log"
 	"net/http"

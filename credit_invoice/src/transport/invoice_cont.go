@@ -1,7 +1,7 @@
 package transport
 
 import (
-	busn "devv-monteiro/go-digital-bank/credit-invoice/src/business"
+	busn "dev-monteiro/go-digital-bank/credit-invoice/src/business"
 	"encoding/json"
 	"log"
 	"net/http"

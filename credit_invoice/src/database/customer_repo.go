@@ -1,7 +1,7 @@
 package database
 
 import (
-	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
+	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	"log"
 	"os"
 

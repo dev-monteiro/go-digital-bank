@@ -1,8 +1,8 @@
 package mock_imp
 
 import (
-	comm "devv-monteiro/go-digital-bank/commons"
-	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	comm "dev-monteiro/go-digital-bank/commons"
+	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
 
 	"github.com/stretchr/testify/mock"
 )

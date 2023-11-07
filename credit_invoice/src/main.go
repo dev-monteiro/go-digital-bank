@@ -1,10 +1,10 @@
 package main
 
 import (
-	busi "devv-monteiro/go-digital-bank/credit-invoice/src/business"
-	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
-	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
-	tran "devv-monteiro/go-digital-bank/credit-invoice/src/transport"
+	busi "dev-monteiro/go-digital-bank/credit-invoice/src/business"
+	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
+	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
+	tran "dev-monteiro/go-digital-bank/credit-invoice/src/transport"
 	"log"
 	"net/http"
 	"time"

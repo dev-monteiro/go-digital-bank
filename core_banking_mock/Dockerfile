@@ -4,13 +4,13 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY commons /home/commons
 
-WORKDIR /home/core-banking-mock
+WORKDIR /home/core_banking_mock
 
-COPY core-banking-mock/go.mod .
-COPY core-banking-mock/go.sum .
+COPY core_banking_mock/go.mod .
+COPY core_banking_mock/go.sum .
 RUN go mod download
 
-WORKDIR /home/core-banking-mock/src
+WORKDIR /home/core_banking_mock/src
 
 RUN air init
 CMD ["air"]

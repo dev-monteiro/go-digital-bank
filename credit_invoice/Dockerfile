@@ -4,13 +4,13 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY commons /home/commons
 
-WORKDIR /home/credit-invoice
+WORKDIR /home/credit_invoice
 
-COPY credit-invoice/go.mod .
-COPY credit-invoice/go.sum .
+COPY credit_invoice/go.mod .
+COPY credit_invoice/go.sum .
 RUN go mod download
 
-WORKDIR /home/credit-invoice/src
+WORKDIR /home/credit_invoice/src
 
 RUN air init
 CMD ["air"]

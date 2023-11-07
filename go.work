@@ -2,6 +2,6 @@ go 1.20
 
 use (
 	./commons
-	./core-banking-mock
-	./credit-invoice
+	./core_banking_mock
+	./credit_invoice
 )

@@ -3,7 +3,7 @@ services:
     container_name: credit_invoice
     build:
       context: .
-      dockerfile: ./credit-invoice/Dockerfile
+      dockerfile: ./credit_invoice/Dockerfile
     ports:
       - "8080:80"
     environment:
@@ -16,13 +16,13 @@ services:
       - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
       - CORE_BANKING_HOST=http://core_banking_mock
     volumes:
-      - ./credit-invoice/src:/home/credit-invoice/src
+      - ./credit_invoice/src:/home/credit_invoice/src
       - ./commons:/home/commons
   core_banking_mock:
     container_name: core_banking_mock
     build:
       context: .
-      dockerfile: ./core-banking-mock/Dockerfile
+      dockerfile: ./core_banking_mock/Dockerfile
     ports:
       - "9090:80"
     environment:
@@ -32,7 +32,7 @@ services:
       - AWS_PASS=test
       - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
     volumes:
-      - ./core-banking-mock/src:/home/core-banking-mock/src
+      - ./core_banking_mock/src:/home/core_banking_mock/src
       - ./commons:/home/commons
   localstack:
     container_name: localstack

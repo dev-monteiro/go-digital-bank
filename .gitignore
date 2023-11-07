@@ -1,7 +1,6 @@
 # Hot reloading tool temporary directories
-/credit-invoice/src/tmp
-/core-banking-mock/src/tmp
-/producer-mock/src/tmp
+/credit_invoice/src/tmp
+/core_banking_mock/src/tmp
 
 # Localstack volume directory
 /volume

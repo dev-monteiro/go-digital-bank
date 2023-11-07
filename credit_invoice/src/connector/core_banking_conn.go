@@ -1,7 +1,7 @@
 package connector
 
 import (
-	comm "devv-monteiro/go-digital-bank/commons"
+	comm "dev-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"log"
 	"net/http"

@@ -1,9 +1,9 @@
 package transport
 
 import (
-	comm "devv-monteiro/go-digital-bank/commons"
-	conn "devv-monteiro/go-digital-bank/credit-invoice/src/connector"
-	data "devv-monteiro/go-digital-bank/credit-invoice/src/database"
+	comm "dev-monteiro/go-digital-bank/commons"
+	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
+	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
 	"encoding/json"
 	"log"
 	"os"

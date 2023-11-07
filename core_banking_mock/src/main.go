@@ -1,7 +1,7 @@
 package main
 
 import (
-	"devv-monteiro/go-digital-bank/commons"
+	"dev-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"log"
 	"math/rand"
