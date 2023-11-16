@@ -4,6 +4,7 @@ import (
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -12,6 +13,7 @@ import (
 
 type CustomerRepo interface {
 	FindById(id string) (*Customer, error)
+	FindAllByCoreBankBatchId(coreBankBatchId int) ([]Customer, error)
 }
 
 type customerRepo struct {
@@ -52,4 +54,30 @@ func (repo *customerRepo) FindById(id string) (*Customer, error) {
 	}
 
 	return &cust, nil
+}
+
+func (repo *customerRepo) FindAllByCoreBankBatchId(coreBankBatchId int) ([]Customer, error) {
+	log.Println("[CustomerRepo] FindAllByCoreBankBatchId")
+
+	dynaInput := &dynamodb.QueryInput{
+		TableName:              repo.tableName,
+		IndexName:              aws.String("coreBankBatchId-index"),
+		KeyConditionExpression: aws.String("CoreBankBatchId = :coreBankBatchId"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":coreBankBatchId": {N: aws.String(strconv.Itoa(coreBankBatchId))},
+		},
+	}
+
+	dynaOutput, err := repo.dynaConn.Query(dynaInput)
+	if err != nil {
+		return nil, err
+	}
+
+	var customers []Customer
+	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &customers)
+	if err != nil {
+		return nil, err
+	}
+
+	return customers, nil
 }

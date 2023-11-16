@@ -14,6 +14,7 @@ import (
 type TransactionRepo interface {
 	Save(transc Transaction) error
 	FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, error)
+	Delete(transc Transaction) error
 }
 
 type transactionRepo struct {
@@ -70,4 +71,24 @@ func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]
 	}
 
 	return transactions, nil
+}
+
+func (repo *transactionRepo) Delete(transc Transaction) error {
+	log.Println("[TransactionRepo] Delete")
+
+	input := &dynamodb.DeleteItemInput{
+		TableName: repo.tableName,
+		Key: map[string]*dynamodb.AttributeValue{
+			"PurchaseId": {
+				N: aws.String(strconv.Itoa(transc.PurchaseId)),
+			},
+		},
+	}
+
+	_, err := repo.dynaConn.DeleteItem(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

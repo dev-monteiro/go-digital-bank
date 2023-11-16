@@ -14,6 +14,7 @@ services:
       - AWS_CUSTOMERS_TABLE_NAME=local-customers-table
       - AWS_TRANSACTIONS_TABLE_NAME=local-transactions-table
       - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
+      - AWS_BATCHES_QUEUE_NAME=local-batches-queue
       - CORE_BANKING_HOST=http://core_banking_mock
     volumes:
       - ./credit_invoice/src:/home/credit_invoice/src
@@ -31,6 +32,7 @@ services:
       - AWS_LOGIN=test
       - AWS_PASS=test
       - AWS_PURCHASES_QUEUE_NAME=local-purchases-queue
+      - AWS_BATCHES_QUEUE_NAME=local-batches-queue
     volumes:
       - ./core_banking_mock/src:/home/core_banking_mock/src
       - ./commons:/home/commons

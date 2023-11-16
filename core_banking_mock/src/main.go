@@ -15,9 +15,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-var sqsClient *sqs.SQS
-var queueUrl *string
-var random *rand.Rand
+type MockData struct {
+	sqsClient   *sqs.SQS
+	queueUrlMap map[string]*string
+	random      *rand.Rand
+}
+
+var data *MockData
 
 func main() {
 	setup()
@@ -26,11 +30,14 @@ func main() {
 
 	http.HandleFunc("/invoices", getInvoices)
 	http.HandleFunc("/trigger/purchase", createPurchase)
+	http.HandleFunc("/trigger/batch", createBatch)
 
 	http.ListenAndServe(":80", nil)
 }
 
 func setup() {
+	data = &MockData{queueUrlMap: make(map[string]*string)}
+
 	for {
 		err := setupSqs()
 
@@ -42,7 +49,7 @@ func setup() {
 		time.Sleep(5 * time.Second)
 	}
 
-	random = rand.New(rand.NewSource(time.Now().UnixNano()))
+	data.random = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 func setupSqs() error {
@@ -55,17 +62,32 @@ func setupSqs() error {
 	if err != nil {
 		return err
 	}
-	sqsClient = sqs.New(sess)
+	data.sqsClient = sqs.New(sess)
 
-	queueName := os.Getenv("AWS_PURCHASES_QUEUE_NAME")
-	queueUrlResp, err := sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
+	err = setupQueue("AWS_PURCHASES_QUEUE_NAME")
+	if err != nil {
+		return err
+	}
+
+	err = setupQueue("AWS_BATCHES_QUEUE_NAME")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupQueue(queueNameEnv string) error {
+	queueName := os.Getenv(queueNameEnv)
+	queueUrlResp, err := data.sqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
 		QueueName: &queueName,
 	})
 
 	if err != nil {
 		return err
 	}
-	queueUrl = queueUrlResp.QueueUrl
+
+	data.queueUrlMap[queueNameEnv] = queueUrlResp.QueueUrl
 
 	return nil
 }
@@ -103,22 +125,22 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 
 func genClosingDate(closingDay int) string {
 	closingDate := time.Date(time.Now().Year(), time.Now().Month(), closingDay, 0, 0, 0, 0, time.UTC)
-	return closingDate.Format("2006-01-02")
+	return closingDate.Format(time.DateOnly)
 }
 
 func genDueDate(dueDay int) string {
 	dueDate := time.Date(time.Now().Year(), time.Now().Month()+1, dueDay, 0, 0, 0, 0, time.UTC)
-	return dueDate.Format("2006-01-02")
+	return dueDate.Format(time.DateOnly)
 }
 
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreatePurchase")
 
 	event := commons.PurchaseEvent{
-		PurchaseId:          random.Intn(10000),
+		PurchaseId:          data.random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
-		Amount:              float64(random.Intn(10000) / 100),
+		Amount:              float64(data.random.Intn(10000) / 100),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
@@ -132,9 +154,38 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err = sqsClient.SendMessage(&sqs.SendMessageInput{
+	_, err = data.sqsClient.SendMessage(&sqs.SendMessageInput{
 		MessageBody: aws.String(string(body)),
-		QueueUrl:    queueUrl,
+		QueueUrl:    data.queueUrlMap["AWS_PURCHASES_QUEUE_NAME"],
+	})
+
+	if err != nil {
+		log.Println(err)
+		resWr.WriteHeader(500)
+		return
+	}
+
+	resWr.WriteHeader(200)
+}
+
+func createBatch(resWr http.ResponseWriter, req *http.Request) {
+	log.Println("[Mock] CreateBatch")
+
+	event := commons.BatchEvent{
+		BatchId:       789,
+		ReferenceDate: time.Now().Format(time.DateOnly),
+	}
+	body, err := json.Marshal(event)
+
+	if err != nil {
+		log.Println(err)
+		resWr.WriteHeader(500)
+		return
+	}
+
+	_, err = data.sqsClient.SendMessage(&sqs.SendMessageInput{
+		MessageBody: aws.String(string(body)),
+		QueueUrl:    data.queueUrlMap["AWS_BATCHES_QUEUE_NAME"],
 	})
 
 	if err != nil {

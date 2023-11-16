@@ -14,6 +14,7 @@ type DynamoConn interface {
 	PutItem(input *dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error)
 	Query(input *dynamodb.QueryInput) (*dynamodb.QueryOutput, error)
 	GetItem(input *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error)
+	DeleteItem(input *dynamodb.DeleteItemInput) (*dynamodb.DeleteItemOutput, error)
 }
 
 func NewDynamoConn() (DynamoConn, error) {

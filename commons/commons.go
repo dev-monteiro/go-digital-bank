@@ -25,3 +25,8 @@ type PurchaseEvent struct {
 	Status              string
 	Description         string
 }
+
+type BatchEvent struct {
+	BatchId       int
+	ReferenceDate string
+}

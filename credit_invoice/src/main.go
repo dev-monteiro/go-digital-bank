@@ -28,6 +28,7 @@ func setupComponents() {
 	invoServ := busi.NewInvoiceServ(custRepo, transcRepo, coreBankConn)
 
 	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsConn, transcRepo) })
+	setupWithRetry(func() (*tran.BatchListen, error) { return tran.NewBatchListen(sqsConn, custRepo, transcRepo) })
 	tran.NewInvoiceCont(invoServ)
 
 	log.Println("[Main] Setup completed!")

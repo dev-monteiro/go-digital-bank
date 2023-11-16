@@ -4,7 +4,7 @@ awslocal dynamodb create-table --table-name local-customers-table \
     --attribute-definitions AttributeName=Id,AttributeType=S AttributeName=CoreBankBatchId,AttributeType=N \
     --key-schema AttributeName=Id,KeyType=HASH \
     --billing-mode PAY_PER_REQUEST \
-    --global-secondary-indexes "IndexName=coreBankBatch-index,KeySchema=[{AttributeName=CoreBankBatchId,KeyType=HASH}],Projection={ProjectionType=ALL},ProvisionedThroughput={ReadCapacityUnits=5,WriteCapacityUnits=5}" \
+    --global-secondary-indexes "IndexName=coreBankBatchId-index,KeySchema=[{AttributeName=CoreBankBatchId,KeyType=HASH}],Projection={ProjectionType=ALL},ProvisionedThroughput={ReadCapacityUnits=5,WriteCapacityUnits=5}" \
     > /dev/null
 
 awslocal dynamodb create-table --table-name local-transactions-table \
@@ -19,6 +19,9 @@ awslocal dynamodb put-item --table-name local-customers-table \
     > /dev/null
 
 awslocal sqs create-queue --queue-name local-purchases-queue \
+   > /dev/null
+
+awslocal sqs create-queue --queue-name local-batches-queue \
    > /dev/null
 
 echo "Setup completed!"
