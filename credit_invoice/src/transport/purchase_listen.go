@@ -2,20 +2,20 @@ package transport
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
+	busn "dev-monteiro/go-digital-bank/credit-invoice/src/business"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
-	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
 	"log"
 )
 
 type purchaseListen struct {
 	sqsConn    conn.SqsConn
-	transcRepo data.TransactionRepo
+	transcServ busn.TransactionServ
 }
 
-func NewPurchaseListen(sqsConn conn.SqsConn, transcRepo data.TransactionRepo) (Listen[comm.PurchaseEvent], error) {
+func NewPurchaseListen(sqsConn conn.SqsConn, transcServ busn.TransactionServ) (Listen[comm.PurchaseEvent], error) {
 	return SetupListen[comm.PurchaseEvent](sqsConn, &purchaseListen{
 		sqsConn:    sqsConn,
-		transcRepo: transcRepo,
+		transcServ: transcServ,
 	})
 }
 
@@ -24,16 +24,8 @@ func (listen *purchaseListen) getQueueNameEnv() string {
 }
 
 func (listen *purchaseListen) process(event comm.PurchaseEvent) {
-	log.Println("[PurchaseListen] Event received")
-
-	transc := data.Transaction{
-		PurchaseId:         event.PurchaseId,
-		CustomerCoreBankId: event.CreditAccountId,
-		Amount:             event.Amount,
-	}
-
-	err := listen.transcRepo.Save(transc)
+	err := listen.transcServ.CreateFromPurchase(event)
 	if err != nil {
-		log.Println("[PurchaseListen] " + err.Error())
+		log.Println("[PurchaseListen] Error: " + err.Message)
 	}
 }

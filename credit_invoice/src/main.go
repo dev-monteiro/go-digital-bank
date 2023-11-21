@@ -27,12 +27,13 @@ func setupComponents() {
 	transcRepo := data.NewTransactionRepo(dynaConn)
 
 	invoServ := busi.NewInvoiceServ(custRepo, transcRepo, coreBankConn)
+	transcServ := busi.NewTransactionServ(custRepo, transcRepo)
 
 	setupWithRetry(func() (tran.Listen[comm.PurchaseEvent], error) {
-		return tran.NewPurchaseListen(sqsConn, transcRepo)
+		return tran.NewPurchaseListen(sqsConn, transcServ)
 	})
 	setupWithRetry(func() (tran.Listen[comm.BatchEvent], error) {
-		return tran.NewBatchListen(sqsConn, custRepo, transcRepo)
+		return tran.NewBatchListen(sqsConn, transcServ)
 	})
 	tran.NewInvoiceCont(invoServ)
 
