@@ -1,6 +1,7 @@
 package main
 
 import (
+	comm "dev-monteiro/go-digital-bank/commons"
 	busi "dev-monteiro/go-digital-bank/credit-invoice/src/business"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
@@ -27,8 +28,12 @@ func setupComponents() {
 
 	invoServ := busi.NewInvoiceServ(custRepo, transcRepo, coreBankConn)
 
-	setupWithRetry(func() (*tran.PurchaseListen, error) { return tran.NewPurchaseListen(sqsConn, transcRepo) })
-	setupWithRetry(func() (*tran.BatchListen, error) { return tran.NewBatchListen(sqsConn, custRepo, transcRepo) })
+	setupWithRetry(func() (tran.Listen[comm.PurchaseEvent], error) {
+		return tran.NewPurchaseListen(sqsConn, transcRepo)
+	})
+	setupWithRetry(func() (tran.Listen[comm.BatchEvent], error) {
+		return tran.NewBatchListen(sqsConn, custRepo, transcRepo)
+	})
 	tran.NewInvoiceCont(invoServ)
 
 	log.Println("[Main] Setup completed!")
