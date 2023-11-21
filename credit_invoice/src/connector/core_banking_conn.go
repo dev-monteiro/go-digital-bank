@@ -34,5 +34,9 @@ func (conn *coreBankConn) GetAllInvoices(custCoreBankId int) ([]comm.CoreBankInv
 
 	var invoListResp comm.CoreBankInvoiceListResp
 	json.NewDecoder(resp.Body).Decode(&invoListResp)
-	return invoListResp.Invoices, nil
+	invoices := invoListResp.Invoices
+
+	log.Printf("[InvoiceServ] GetCoreBankInvoices: %v", invoices)
+
+	return invoices, nil
 }

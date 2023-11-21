@@ -16,9 +16,11 @@ import (
 )
 
 type MockData struct {
-	sqsClient   *sqs.SQS
-	queueUrlMap map[string]*string
-	random      *rand.Rand
+	sqsClient            *sqs.SQS
+	queueUrlMap          map[string]*string
+	random               *rand.Rand
+	pendingPurchaseMap   map[int][]commons.PurchaseEvent
+	processedPurchaseMap map[int][]commons.PurchaseEvent
 }
 
 var data *MockData
@@ -36,7 +38,11 @@ func main() {
 }
 
 func setup() {
-	data = &MockData{queueUrlMap: make(map[string]*string)}
+	data = &MockData{
+		queueUrlMap:          make(map[string]*string),
+		pendingPurchaseMap:   make(map[int][]commons.PurchaseEvent),
+		processedPurchaseMap: make(map[int][]commons.PurchaseEvent),
+	}
 
 	for {
 		err := setupSqs()
@@ -104,6 +110,11 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	totalAmount := 1234.5
+	for _, purchase := range data.processedPurchaseMap[123] {
+		totalAmount += purchase.Amount
+	}
+
 	invoice := commons.CoreBankInvoiceResp{
 		CreditAccountId:     123,
 		ProcessingSituation: "OPEN",
@@ -111,7 +122,7 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		DueDate:             genDueDate(5),
 		ActualDueDate:       genDueDate(5),
 		ClosingDate:         genClosingDate(30),
-		TotalAmount:         1234.5,
+		TotalAmount:         totalAmount,
 		InvoiceId:           1234,
 	}
 
@@ -136,7 +147,7 @@ func genDueDate(dueDay int) string {
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreatePurchase")
 
-	event := commons.PurchaseEvent{
+	purchase := commons.PurchaseEvent{
 		PurchaseId:          data.random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
@@ -146,7 +157,7 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 		Status:              "APPROVED",
 		Description:         "love generation",
 	}
-	body, err := json.Marshal(event)
+	body, err := json.Marshal(purchase)
 
 	if err != nil {
 		log.Println(err)
@@ -164,6 +175,8 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 		resWr.WriteHeader(500)
 		return
 	}
+
+	data.pendingPurchaseMap[123] = append(data.pendingPurchaseMap[123], purchase)
 
 	resWr.WriteHeader(200)
 }
@@ -193,6 +206,9 @@ func createBatch(resWr http.ResponseWriter, req *http.Request) {
 		resWr.WriteHeader(500)
 		return
 	}
+
+	data.processedPurchaseMap[123] = append(data.processedPurchaseMap[123], data.pendingPurchaseMap[123]...)
+	data.pendingPurchaseMap[123] = []commons.PurchaseEvent{}
 
 	resWr.WriteHeader(200)
 }
