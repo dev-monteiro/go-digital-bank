@@ -1,5 +1,7 @@
 package database
 
+import comm "dev-monteiro/go-digital-bank/commons"
+
 type Customer struct {
 	Id              string
 	CoreBankId      int
@@ -9,5 +11,5 @@ type Customer struct {
 type Transaction struct {
 	PurchaseId         int
 	CustomerCoreBankId int
-	Amount             float64
+	Amount             *comm.MoneyAmount
 }

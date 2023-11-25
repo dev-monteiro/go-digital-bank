@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -110,9 +111,9 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	totalAmount := 1234.5
+	totalAmount := commons.NewMoneyAmount("1234.5")
 	for _, purchase := range data.processedPurchaseMap[123] {
-		totalAmount += purchase.Amount
+		totalAmount = totalAmount.Add(purchase.Amount)
 	}
 
 	invoice := commons.CoreBankInvoiceResp{
@@ -151,11 +152,11 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 		PurchaseId:          data.random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
-		Amount:              float64(data.random.Intn(10000) / 100),
+		Amount:              commons.NewMoneyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
-		Description:         "love generation",
+		Description:         "some purchase",
 	}
 	body, err := json.Marshal(purchase)
 

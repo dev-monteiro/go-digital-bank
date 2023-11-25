@@ -7,7 +7,7 @@ type CoreBankInvoiceResp struct {
 	DueDate             string // TODO: convert to date
 	ActualDueDate       string
 	ClosingDate         string
-	TotalAmount         float64 // TODO: convert to some kind of big decimal
+	TotalAmount         *MoneyAmount
 	InvoiceId           int
 }
 
@@ -19,7 +19,7 @@ type PurchaseEvent struct {
 	PurchaseId          int
 	CreditAccountId     int
 	PurchaseDateTime    string
-	Amount              float64
+	Amount              *MoneyAmount
 	NumInstallments     int
 	MerchantDescription string
 	Status              string

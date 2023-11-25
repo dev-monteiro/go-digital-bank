@@ -2,10 +2,10 @@ package business
 
 import (
 	"dev-monteiro/go-digital-bank/commons"
+	comm "dev-monteiro/go-digital-bank/commons"
 	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -66,7 +66,7 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 
 	resp := CurrInvoiceResp{
 		StatusLabel: strings.Title(strings.ToLower(invo.ProcessingSituation)),
-		Amount:      fmt.Sprintf("$ %.2f", amount),
+		Amount:      "$ " + amount.String(),
 		ClosingDate: closDate,
 	}
 
@@ -93,19 +93,21 @@ func (serv *invoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (
 
 	return &openInvo, nil
 }
-func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount float64) (float64, error) {
+func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount *comm.MoneyAmount) (*comm.MoneyAmount, error) {
 	log.Println("[InvoiceServ] UpdateInvoiceAmount")
 
 	transcArr, err := serv.transcRepo.FindAllByCustomerCoreBankId(custCoreBankId)
 
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
+	sum := invoAmount
 	for _, transc := range transcArr {
-		invoAmount += transc.Amount
+		sum = sum.Add(transc.Amount)
 	}
-	return invoAmount, nil
+
+	return sum, nil
 }
 
 func (serv *invoiceServ) convertClosingDate(closingDate string) (string, error) {
