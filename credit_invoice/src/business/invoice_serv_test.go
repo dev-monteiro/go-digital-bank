@@ -88,20 +88,20 @@ func TestInvoiceServ(t *testing.T) {
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 9, 30),
-					ActualDueDate:       date(2023, 10, 5),
+					ClosingDate:         comm.NewLocalDate(2023, 9, 30),
+					ActualDueDate:       comm.NewLocalDate(2023, 10, 5),
 					TotalAmount:         comm.NewMoneyAmount("999.99"),
 				},
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 10, 30),
-					ActualDueDate:       date(2023, 11, 6),
+					ClosingDate:         comm.NewLocalDate(2023, 10, 30),
+					ActualDueDate:       comm.NewLocalDate(2023, 11, 6),
 					TotalAmount:         comm.NewMoneyAmount("456.78"),
 				},
 				{
 					ProcessingSituation: "OPEN",
-					ClosingDate:         date(2023, 11, 30),
-					ActualDueDate:       date(2023, 12, 5),
+					ClosingDate:         comm.NewLocalDate(2023, 11, 30),
+					ActualDueDate:       comm.NewLocalDate(2023, 12, 5),
 					TotalAmount:         comm.NewMoneyAmount("123.45"),
 				},
 			},
@@ -123,20 +123,20 @@ func TestInvoiceServ(t *testing.T) {
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 9, 10),
-					ActualDueDate:       date(2023, 9, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 9, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 9, 15),
 					TotalAmount:         comm.NewMoneyAmount("888.88"),
 				},
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 10, 10),
-					ActualDueDate:       date(2023, 10, 16),
+					ClosingDate:         comm.NewLocalDate(2023, 10, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 10, 16),
 					TotalAmount:         comm.NewMoneyAmount("777.77"),
 				},
 				{
 					ProcessingSituation: "OPEN",
-					ClosingDate:         date(2023, 11, 10),
-					ActualDueDate:       date(2023, 11, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 11, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 11, 15),
 					TotalAmount:         comm.NewMoneyAmount("100"),
 				},
 			},
@@ -157,20 +157,20 @@ func TestInvoiceServ(t *testing.T) {
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 9, 10),
-					ActualDueDate:       date(2023, 9, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 9, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 9, 15),
 					TotalAmount:         comm.NewMoneyAmount("888.88"),
 				},
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 10, 10),
-					ActualDueDate:       date(2023, 10, 16),
+					ClosingDate:         comm.NewLocalDate(2023, 10, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 10, 16),
 					TotalAmount:         comm.NewMoneyAmount("777.77"),
 				},
 				{
 					ProcessingSituation: "OPEN",
-					ClosingDate:         date(2023, 11, 10),
-					ActualDueDate:       date(2023, 11, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 11, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 11, 15),
 					TotalAmount:         comm.NewMoneyAmount("100"),
 				},
 			},
@@ -192,20 +192,20 @@ func TestInvoiceServ(t *testing.T) {
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 9, 10),
-					ActualDueDate:       date(2023, 9, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 9, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 9, 15),
 					TotalAmount:         comm.NewMoneyAmount("888.88"),
 				},
 				{
 					ProcessingSituation: "CLOSED",
-					ClosingDate:         date(2023, 10, 10),
-					ActualDueDate:       date(2023, 10, 16),
+					ClosingDate:         comm.NewLocalDate(2023, 10, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 10, 16),
 					TotalAmount:         comm.NewMoneyAmount("777.77"),
 				},
 				{
 					ProcessingSituation: "OPEN",
-					ClosingDate:         date(2023, 11, 10),
-					ActualDueDate:       date(2023, 11, 15),
+					ClosingDate:         comm.NewLocalDate(2023, 11, 10),
+					ActualDueDate:       comm.NewLocalDate(2023, 11, 15),
 					TotalAmount:         comm.NewMoneyAmount("100"),
 				},
 			},
@@ -243,8 +243,4 @@ func TestInvoiceServ(t *testing.T) {
 			assert.Equal(t, test.ExpectedError, err)
 		})
 	}
-}
-
-func date(y int, m time.Month, d int) string {
-	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
 }

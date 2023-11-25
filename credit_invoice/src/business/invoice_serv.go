@@ -1,7 +1,6 @@
 package business
 
 import (
-	"dev-monteiro/go-digital-bank/commons"
 	comm "dev-monteiro/go-digital-bank/commons"
 	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
@@ -9,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type InvoiceServ interface {
@@ -59,32 +57,22 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 		}
 	}
 
-	closDate, err := serv.convertClosingDate(invo.ClosingDate)
-	if err != nil {
-		return nil, conf.NewUnknownError(err)
-	}
-
 	resp := CurrInvoiceResp{
 		StatusLabel: strings.Title(strings.ToLower(invo.ProcessingSituation)),
 		Amount:      "$ " + amount.String(),
-		ClosingDate: closDate,
+		ClosingDate: strings.ToUpper(invo.ClosingDate.Format(comm.MonLitCapsDayNum)),
 	}
 
 	return &resp, nil
 }
 
-func (serv *invoiceServ) getCurrInvoice(invoArr []commons.CoreBankInvoiceResp) (*commons.CoreBankInvoiceResp, error) {
+func (serv *invoiceServ) getCurrInvoice(invoArr []comm.CoreBankInvoiceResp) (*comm.CoreBankInvoiceResp, error) {
 	log.Println("[InvoiceServ] GetCurrInvoice")
 
-	var openInvo commons.CoreBankInvoiceResp
+	var openInvo comm.CoreBankInvoiceResp
 
 	for _, invo := range invoArr {
-		dueDate, err := time.Parse(time.DateOnly, invo.ActualDueDate)
-		if err != nil {
-			return nil, err
-		}
-
-		if invo.ProcessingSituation == "CLOSED" && !dueDate.Before(time.Now().Truncate(24*time.Hour)) {
+		if invo.ProcessingSituation == "CLOSED" && !comm.Today().After(invo.ActualDueDate) {
 			return &invo, nil
 		} else if invo.ProcessingSituation == "OPEN" {
 			openInvo = invo
@@ -108,15 +96,4 @@ func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount *com
 	}
 
 	return sum, nil
-}
-
-func (serv *invoiceServ) convertClosingDate(closingDate string) (string, error) {
-	log.Println("[InvoiceServ] ConvertClosingDate")
-
-	parsedDate, err := time.Parse(time.DateOnly, closingDate)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.ToUpper(parsedDate.Format("Jan 02")), nil
 }

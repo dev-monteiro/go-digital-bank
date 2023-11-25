@@ -18,8 +18,8 @@ func NewMoneyAmount(strAmnt string) *MoneyAmount {
 	return amnt
 }
 
-func (amnt *MoneyAmount) Add(amnt2 *MoneyAmount) *MoneyAmount {
-	return &MoneyAmount{rawNum: amnt.rawNum + amnt2.rawNum}
+func (amnt *MoneyAmount) Add(othAmnt *MoneyAmount) *MoneyAmount {
+	return &MoneyAmount{rawNum: amnt.rawNum + othAmnt.rawNum}
 }
 
 func (amnt *MoneyAmount) String() string {
@@ -27,8 +27,8 @@ func (amnt *MoneyAmount) String() string {
 	return strconv.FormatFloat(floNum, 'f', 2, 64)
 }
 
-func (amnt *MoneyAmount) UnmarshalJSON(bytArrNum []byte) error {
-	return amnt.unmarshalByteArr(bytArrNum)
+func (amnt *MoneyAmount) UnmarshalJSON(bytArr []byte) error {
+	return amnt.unmarshalByteArr(bytArr)
 }
 
 func (amnt *MoneyAmount) MarshalJSON() ([]byte, error) {

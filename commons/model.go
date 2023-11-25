@@ -4,9 +4,9 @@ type CoreBankInvoiceResp struct {
 	CreditAccountId     int32
 	ProcessingSituation string // TODO: convert to some kind of enum?
 	IsPaymentDone       bool
-	DueDate             string // TODO: convert to date
-	ActualDueDate       string
-	ClosingDate         string
+	DueDate             *LocalDate
+	ActualDueDate       *LocalDate
+	ClosingDate         *LocalDate
 	TotalAmount         *MoneyAmount
 	InvoiceId           int
 }
@@ -28,5 +28,5 @@ type PurchaseEvent struct {
 
 type BatchEvent struct {
 	BatchId       int
-	ReferenceDate string
+	ReferenceDate *LocalDate
 }

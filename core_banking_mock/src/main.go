@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dev-monteiro/go-digital-bank/commons"
+	comm "dev-monteiro/go-digital-bank/commons"
 	"encoding/json"
 	"log"
 	"math/rand"
@@ -20,8 +20,8 @@ type MockData struct {
 	sqsClient            *sqs.SQS
 	queueUrlMap          map[string]*string
 	random               *rand.Rand
-	pendingPurchaseMap   map[int][]commons.PurchaseEvent
-	processedPurchaseMap map[int][]commons.PurchaseEvent
+	pendingPurchaseMap   map[int][]comm.PurchaseEvent
+	processedPurchaseMap map[int][]comm.PurchaseEvent
 }
 
 var data *MockData
@@ -41,8 +41,8 @@ func main() {
 func setup() {
 	data = &MockData{
 		queueUrlMap:          make(map[string]*string),
-		pendingPurchaseMap:   make(map[int][]commons.PurchaseEvent),
-		processedPurchaseMap: make(map[int][]commons.PurchaseEvent),
+		pendingPurchaseMap:   make(map[int][]comm.PurchaseEvent),
+		processedPurchaseMap: make(map[int][]comm.PurchaseEvent),
 	}
 
 	for {
@@ -105,18 +105,18 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	creditAccountId := request.Form.Get("creditAccountId")
 
-	log.Println("[Mock] CreditAccountId: " + creditAccountId)
+	log.Println("[Mock] GetInvoices CreditAccountId: " + creditAccountId)
 	if creditAccountId != "123" {
 		resWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	totalAmount := commons.NewMoneyAmount("1234.5")
+	totalAmount := comm.NewMoneyAmount("1234.5")
 	for _, purchase := range data.processedPurchaseMap[123] {
 		totalAmount = totalAmount.Add(purchase.Amount)
 	}
 
-	invoice := commons.CoreBankInvoiceResp{
+	invoice := comm.CoreBankInvoiceResp{
 		CreditAccountId:     123,
 		ProcessingSituation: "OPEN",
 		IsPaymentDone:       false,
@@ -127,32 +127,33 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		InvoiceId:           1234,
 	}
 
-	invoiceList := commons.CoreBankInvoiceListResp{
-		Invoices: []commons.CoreBankInvoiceResp{invoice},
+	invoiceList := comm.CoreBankInvoiceListResp{
+		Invoices: []comm.CoreBankInvoiceResp{invoice},
 	}
 
 	resWriter.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(resWriter).Encode(invoiceList)
+	err := json.NewEncoder(resWriter).Encode(invoiceList)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-func genClosingDate(closingDay int) string {
-	closingDate := time.Date(time.Now().Year(), time.Now().Month(), closingDay, 0, 0, 0, 0, time.UTC)
-	return closingDate.Format(time.DateOnly)
+func genDueDate(dueDay int) *comm.LocalDate {
+	return comm.NewLocalDate(comm.Today().Year(), comm.Today().Month()+1, dueDay)
 }
 
-func genDueDate(dueDay int) string {
-	dueDate := time.Date(time.Now().Year(), time.Now().Month()+1, dueDay, 0, 0, 0, 0, time.UTC)
-	return dueDate.Format(time.DateOnly)
+func genClosingDate(closingDay int) *comm.LocalDate {
+	return comm.NewLocalDate(comm.Today().Year(), comm.Today().Month(), closingDay)
 }
 
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreatePurchase")
 
-	purchase := commons.PurchaseEvent{
+	purchase := comm.PurchaseEvent{
 		PurchaseId:          data.random.Intn(10000),
 		CreditAccountId:     123,
 		PurchaseDateTime:    time.Now().String(),
-		Amount:              commons.NewMoneyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
+		Amount:              comm.NewMoneyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
@@ -185,9 +186,9 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 func createBatch(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreateBatch")
 
-	event := commons.BatchEvent{
+	event := comm.BatchEvent{
 		BatchId:       789,
-		ReferenceDate: time.Now().Format(time.DateOnly),
+		ReferenceDate: comm.Today(),
 	}
 	body, err := json.Marshal(event)
 
@@ -209,7 +210,7 @@ func createBatch(resWr http.ResponseWriter, req *http.Request) {
 	}
 
 	data.processedPurchaseMap[123] = append(data.processedPurchaseMap[123], data.pendingPurchaseMap[123]...)
-	data.pendingPurchaseMap[123] = []commons.PurchaseEvent{}
+	data.pendingPurchaseMap[123] = []comm.PurchaseEvent{}
 
 	resWr.WriteHeader(200)
 }
