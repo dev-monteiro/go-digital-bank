@@ -4,6 +4,7 @@ import (
 	comm "dev-monteiro/go-digital-bank/commons"
 	"dev-monteiro/go-digital-bank/commons/invstat"
 	"dev-monteiro/go-digital-bank/commons/ldate"
+	"dev-monteiro/go-digital-bank/commons/ldatetime"
 	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 	"encoding/json"
 	"log"
@@ -154,7 +155,7 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	purchase := comm.PurchaseEvent{
 		Id:                  data.random.Intn(10000),
 		CustomerId:          123,
-		DateTime:            time.Now().String(),
+		DateTime:            ldatetime.Now(),
 		Amount:              mnyamnt.NewMnyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",

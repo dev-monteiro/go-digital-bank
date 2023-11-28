@@ -63,7 +63,7 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	resp := CurrInvoiceResp{
 		StatusLabel:    strings.Title(strings.ToLower(string(invo.Status))),
 		Amount:         "$ " + amount.String(),
-		FmtClosingDate: strings.ToUpper(invo.ClosingDate.Format(ldate.MonLitCapsDayNum)),
+		FmtClosingDate: strings.ToUpper(invo.ClosingDate.Format(ldate.MMdd)),
 	}
 
 	return &resp, nil

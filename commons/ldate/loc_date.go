@@ -10,8 +10,8 @@ type LocDate struct {
 }
 
 const (
-	ISO              = "2006-01-02"
-	MonLitCapsDayNum = "Jan 02"
+	ISO  = "2006-01-02"
+	MMdd = "Jan 02"
 )
 
 func NewLocDate(y int, m int, d int) *LocDate {
@@ -22,7 +22,7 @@ func NewLocDate(y int, m int, d int) *LocDate {
 
 func Today() *LocDate {
 	return &LocDate{
-		tim: time.Now(),
+		tim: time.Now().Truncate(24 * time.Hour),
 	}
 }
 

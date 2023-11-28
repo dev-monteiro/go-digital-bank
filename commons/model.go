@@ -3,6 +3,7 @@ package commons
 import (
 	"dev-monteiro/go-digital-bank/commons/invstat"
 	"dev-monteiro/go-digital-bank/commons/ldate"
+	"dev-monteiro/go-digital-bank/commons/ldatetime"
 	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 )
 
@@ -21,13 +22,13 @@ type CoreBankInvoiceListResp struct {
 }
 
 type PurchaseEvent struct {
-	Id                  int                `json:"purchase_id"`
-	CustomerId          int                `json:"account_id"`
-	DateTime            string             `json:"purchase_date"`
-	Amount              *mnyamnt.MnyAmount `json:"amount"`
-	NumInstallments     int                `json:"installment"`
-	MerchantDescription string             `json:"merchant"`
-	Status              string             `json:"status"`
+	Id                  int                    `json:"purchase_id"`
+	CustomerId          int                    `json:"account_id"`
+	DateTime            *ldatetime.LocDateTime `json:"purchase_date"`
+	Amount              *mnyamnt.MnyAmount     `json:"amount"`
+	NumInstallments     int                    `json:"installment"`
+	MerchantDescription string                 `json:"merchant"`
+	Status              string                 `json:"status"`
 }
 
 type BatchEvent struct {
