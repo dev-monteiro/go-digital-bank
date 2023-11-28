@@ -28,8 +28,8 @@ func (serv *transactionServ) CreateFromPurchase(purchase comm.PurchaseEvent) *co
 	log.Println("[TransactionServ] CreateFromPurchase")
 
 	transc := data.Transaction{
-		PurchaseId:         purchase.PurchaseId,
-		CustomerCoreBankId: purchase.CreditAccountId,
+		PurchaseId:         purchase.Id,
+		CustomerCoreBankId: purchase.CustomerId,
 		Amount:             purchase.Amount,
 	}
 
@@ -44,7 +44,7 @@ func (serv *transactionServ) CreateFromPurchase(purchase comm.PurchaseEvent) *co
 func (serv *transactionServ) ClearByBatch(batch comm.BatchEvent) *conf.AppError {
 	log.Println("[TransactionServ] ClearByBatch")
 
-	custArr, err := serv.custRepo.FindAllByCoreBankBatchId(batch.BatchId)
+	custArr, err := serv.custRepo.FindAllByCoreBankBatchId(batch.Id)
 	if err != nil {
 		return conf.NewUnknownError(err)
 	}

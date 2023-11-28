@@ -1,32 +1,32 @@
 package commons
 
+import "dev-monteiro/go-digital-bank/commons/invostatus"
+
 type CoreBankInvoiceResp struct {
-	CreditAccountId     int32
-	ProcessingSituation string // TODO: convert to some kind of enum?
-	IsPaymentDone       bool
-	DueDate             *LocalDate
-	ActualDueDate       *LocalDate
-	ClosingDate         *LocalDate
-	TotalAmount         *MoneyAmount
-	InvoiceId           int
+	CustomerId    int32                 `json:"accountId"`
+	Status        invostatus.InvoStatus `json:"processingSituation"`
+	IsPaymentDone bool                  `json:"paymentDone"`
+	DueDate       *LocalDate            `json:"invoiceDueDate"`
+	ActualDueDate *LocalDate            `json:"realDueDate"`
+	ClosingDate   *LocalDate            `json:"closingDate"`
+	Amount        *MoneyAmount          `json:"totalAmount"`
 }
 
 type CoreBankInvoiceListResp struct {
-	Invoices []CoreBankInvoiceResp
+	Invoices []CoreBankInvoiceResp `json:"content"`
 }
 
 type PurchaseEvent struct {
-	PurchaseId          int
-	CreditAccountId     int
-	PurchaseDateTime    string
-	Amount              *MoneyAmount
-	NumInstallments     int
-	MerchantDescription string
-	Status              string
-	Description         string
+	Id                  int          `json:"purchase_id"`
+	CustomerId          int          `json:"account_id"`
+	DateTime            string       `json:"purchase_date"`
+	Amount              *MoneyAmount `json:"amount"`
+	NumInstallments     int          `json:"installment"`
+	MerchantDescription string       `json:"merchant"`
+	Status              string       `json:"status"`
 }
 
 type BatchEvent struct {
-	BatchId       int
-	ReferenceDate *LocalDate
+	Id            int        `json:"process_control_id"`
+	ReferenceDate *LocalDate `json:"processing_date"`
 }

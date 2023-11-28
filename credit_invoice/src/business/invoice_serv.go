@@ -2,6 +2,7 @@ package business
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
+	"dev-monteiro/go-digital-bank/commons/invostatus"
 	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
@@ -49,8 +50,8 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 		return nil, conf.NewUnknownError(err)
 	}
 
-	amount := invo.TotalAmount
-	if invo.ProcessingSituation == "OPEN" {
+	amount := invo.Amount
+	if invo.Status == invostatus.OPEN {
 		amount, err = serv.updateInvoiceAmount(cust.CoreBankId, amount)
 		if err != nil {
 			return nil, conf.NewUnknownError(err)
@@ -58,9 +59,9 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	}
 
 	resp := CurrInvoiceResp{
-		StatusLabel: strings.Title(strings.ToLower(invo.ProcessingSituation)),
-		Amount:      "$ " + amount.String(),
-		ClosingDate: strings.ToUpper(invo.ClosingDate.Format(comm.MonLitCapsDayNum)),
+		StatusLabel:    strings.Title(strings.ToLower(string(invo.Status))),
+		Amount:         "$ " + amount.String(),
+		FmtClosingDate: strings.ToUpper(invo.ClosingDate.Format(comm.MonLitCapsDayNum)),
 	}
 
 	return &resp, nil
@@ -72,9 +73,9 @@ func (serv *invoiceServ) getCurrInvoice(invoArr []comm.CoreBankInvoiceResp) (*co
 	var openInvo comm.CoreBankInvoiceResp
 
 	for _, invo := range invoArr {
-		if invo.ProcessingSituation == "CLOSED" && !comm.Today().After(invo.ActualDueDate) {
+		if invo.Status == invostatus.CLOSED && !comm.Today().After(invo.ActualDueDate) {
 			return &invo, nil
-		} else if invo.ProcessingSituation == "OPEN" {
+		} else if invo.Status == invostatus.OPEN {
 			openInvo = invo
 		}
 	}

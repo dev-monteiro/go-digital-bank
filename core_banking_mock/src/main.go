@@ -2,6 +2,7 @@ package main
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
+	"dev-monteiro/go-digital-bank/commons/invostatus"
 	"encoding/json"
 	"log"
 	"math/rand"
@@ -117,14 +118,13 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 	}
 
 	invoice := comm.CoreBankInvoiceResp{
-		CreditAccountId:     123,
-		ProcessingSituation: "OPEN",
-		IsPaymentDone:       false,
-		DueDate:             genDueDate(5),
-		ActualDueDate:       genDueDate(5),
-		ClosingDate:         genClosingDate(30),
-		TotalAmount:         totalAmount,
-		InvoiceId:           1234,
+		CustomerId:    123,
+		Status:        invostatus.OPEN,
+		IsPaymentDone: false,
+		DueDate:       genDueDate(5),
+		ActualDueDate: genDueDate(5),
+		ClosingDate:   genClosingDate(30),
+		Amount:        totalAmount,
 	}
 
 	invoiceList := comm.CoreBankInvoiceListResp{
@@ -150,14 +150,13 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreatePurchase")
 
 	purchase := comm.PurchaseEvent{
-		PurchaseId:          data.random.Intn(10000),
-		CreditAccountId:     123,
-		PurchaseDateTime:    time.Now().String(),
+		Id:                  data.random.Intn(10000),
+		CustomerId:          123,
+		DateTime:            time.Now().String(),
 		Amount:              comm.NewMoneyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
-		Description:         "some purchase",
 	}
 	body, err := json.Marshal(purchase)
 
@@ -187,7 +186,7 @@ func createBatch(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreateBatch")
 
 	event := comm.BatchEvent{
-		BatchId:       789,
+		Id:            789,
 		ReferenceDate: comm.Today(),
 	}
 	body, err := json.Marshal(event)
