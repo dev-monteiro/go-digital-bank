@@ -2,7 +2,9 @@ package business
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
-	"dev-monteiro/go-digital-bank/commons/invostatus"
+	"dev-monteiro/go-digital-bank/commons/invstat"
+	"dev-monteiro/go-digital-bank/commons/ldate"
+	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
 	conn "dev-monteiro/go-digital-bank/credit-invoice/src/connector"
 	data "dev-monteiro/go-digital-bank/credit-invoice/src/database"
@@ -51,7 +53,7 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	}
 
 	amount := invo.Amount
-	if invo.Status == invostatus.OPEN {
+	if invo.Status == invstat.OPEN {
 		amount, err = serv.updateInvoiceAmount(cust.CoreBankId, amount)
 		if err != nil {
 			return nil, conf.NewUnknownError(err)
@@ -61,7 +63,7 @@ func (serv *invoiceServ) GetCurrInvoice(custId string) (*CurrInvoiceResp, *conf.
 	resp := CurrInvoiceResp{
 		StatusLabel:    strings.Title(strings.ToLower(string(invo.Status))),
 		Amount:         "$ " + amount.String(),
-		FmtClosingDate: strings.ToUpper(invo.ClosingDate.Format(comm.MonLitCapsDayNum)),
+		FmtClosingDate: strings.ToUpper(invo.ClosingDate.Format(ldate.MonLitCapsDayNum)),
 	}
 
 	return &resp, nil
@@ -73,16 +75,16 @@ func (serv *invoiceServ) getCurrInvoice(invoArr []comm.CoreBankInvoiceResp) (*co
 	var openInvo comm.CoreBankInvoiceResp
 
 	for _, invo := range invoArr {
-		if invo.Status == invostatus.CLOSED && !comm.Today().After(invo.ActualDueDate) {
+		if invo.Status == invstat.CLOSED && !ldate.Today().After(invo.ActualDueDate) {
 			return &invo, nil
-		} else if invo.Status == invostatus.OPEN {
+		} else if invo.Status == invstat.OPEN {
 			openInvo = invo
 		}
 	}
 
 	return &openInvo, nil
 }
-func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount *comm.MoneyAmount) (*comm.MoneyAmount, error) {
+func (serv *invoiceServ) updateInvoiceAmount(custCoreBankId int, invoAmount *mnyamnt.MnyAmount) (*mnyamnt.MnyAmount, error) {
 	log.Println("[InvoiceServ] UpdateInvoiceAmount")
 
 	transcArr, err := serv.transcRepo.FindAllByCustomerCoreBankId(custCoreBankId)

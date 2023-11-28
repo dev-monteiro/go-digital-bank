@@ -1,11 +1,11 @@
-package commons
+package ldate
 
 import (
 	"strconv"
 	"time"
 )
 
-type LocalDate struct {
+type LocDate struct {
 	tim time.Time
 }
 
@@ -14,43 +14,43 @@ const (
 	MonLitCapsDayNum = "Jan 02"
 )
 
-func NewLocalDate(y int, m int, d int) *LocalDate {
-	return &LocalDate{
+func NewLocDate(y int, m int, d int) *LocDate {
+	return &LocDate{
 		tim: time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.Now().Location()),
 	}
 }
 
-func Today() *LocalDate {
-	return &LocalDate{
+func Today() *LocDate {
+	return &LocDate{
 		tim: time.Now(),
 	}
 }
 
-func (date *LocalDate) Year() int {
+func (date *LocDate) Year() int {
 	return date.tim.Year()
 }
 
-func (date *LocalDate) Month() int {
+func (date *LocDate) Month() int {
 	return int(date.tim.Month())
 }
 
-func (date *LocalDate) Day() int {
+func (date *LocDate) Day() int {
 	return date.tim.Day()
 }
 
-func (date *LocalDate) String() string {
+func (date *LocDate) String() string {
 	return date.Format(ISO)
 }
 
-func (date *LocalDate) Format(layout string) string {
+func (date *LocDate) Format(layout string) string {
 	return date.tim.Format(layout)
 }
 
-func (date *LocalDate) After(othDate *LocalDate) bool {
+func (date *LocDate) After(othDate *LocDate) bool {
 	return date.tim.After(othDate.tim.Truncate(24 * time.Hour))
 }
 
-func (date *LocalDate) UnmarshalJSON(bytArr []byte) error {
+func (date *LocDate) UnmarshalJSON(bytArr []byte) error {
 	strDate, err := strconv.Unquote(string(bytArr))
 	if err != nil {
 		return err
@@ -65,6 +65,6 @@ func (date *LocalDate) UnmarshalJSON(bytArr []byte) error {
 	return nil
 }
 
-func (date *LocalDate) MarshalJSON() ([]byte, error) {
+func (date *LocDate) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Quote(date.String())), nil
 }

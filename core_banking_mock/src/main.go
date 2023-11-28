@@ -2,7 +2,9 @@ package main
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
-	"dev-monteiro/go-digital-bank/commons/invostatus"
+	"dev-monteiro/go-digital-bank/commons/invstat"
+	"dev-monteiro/go-digital-bank/commons/ldate"
+	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 	"encoding/json"
 	"log"
 	"math/rand"
@@ -112,14 +114,14 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	totalAmount := comm.NewMoneyAmount("1234.5")
+	totalAmount := mnyamnt.NewMnyAmount("1234.5")
 	for _, purchase := range data.processedPurchaseMap[123] {
 		totalAmount = totalAmount.Add(purchase.Amount)
 	}
 
 	invoice := comm.CoreBankInvoiceResp{
 		CustomerId:    123,
-		Status:        invostatus.OPEN,
+		Status:        invstat.OPEN,
 		IsPaymentDone: false,
 		DueDate:       genDueDate(5),
 		ActualDueDate: genDueDate(5),
@@ -138,12 +140,12 @@ func getInvoices(resWriter http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func genDueDate(dueDay int) *comm.LocalDate {
-	return comm.NewLocalDate(comm.Today().Year(), comm.Today().Month()+1, dueDay)
+func genDueDate(dueDay int) *ldate.LocDate {
+	return ldate.NewLocDate(ldate.Today().Year(), ldate.Today().Month()+1, dueDay)
 }
 
-func genClosingDate(closingDay int) *comm.LocalDate {
-	return comm.NewLocalDate(comm.Today().Year(), comm.Today().Month(), closingDay)
+func genClosingDate(closingDay int) *ldate.LocDate {
+	return ldate.NewLocDate(ldate.Today().Year(), ldate.Today().Month(), closingDay)
 }
 
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
@@ -153,7 +155,7 @@ func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 		Id:                  data.random.Intn(10000),
 		CustomerId:          123,
 		DateTime:            time.Now().String(),
-		Amount:              comm.NewMoneyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
+		Amount:              mnyamnt.NewMnyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
@@ -187,7 +189,7 @@ func createBatch(resWr http.ResponseWriter, req *http.Request) {
 
 	event := comm.BatchEvent{
 		Id:            789,
-		ReferenceDate: comm.Today(),
+		ReferenceDate: ldate.Today(),
 	}
 	body, err := json.Marshal(event)
 

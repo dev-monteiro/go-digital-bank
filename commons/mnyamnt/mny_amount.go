@@ -1,4 +1,4 @@
-package commons
+package mnyamnt
 
 import (
 	"errors"
@@ -8,40 +8,40 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-type MoneyAmount struct {
+type MnyAmount struct {
 	rawNum int
 }
 
-func NewMoneyAmount(strAmnt string) *MoneyAmount {
-	amnt := &MoneyAmount{}
+func NewMnyAmount(strAmnt string) *MnyAmount {
+	amnt := &MnyAmount{}
 	amnt.unmarshalByteArr([]byte(strAmnt))
 	return amnt
 }
 
-func (amnt *MoneyAmount) Add(othAmnt *MoneyAmount) *MoneyAmount {
-	return &MoneyAmount{rawNum: amnt.rawNum + othAmnt.rawNum}
+func (amnt *MnyAmount) Add(othAmnt *MnyAmount) *MnyAmount {
+	return &MnyAmount{rawNum: amnt.rawNum + othAmnt.rawNum}
 }
 
-func (amnt *MoneyAmount) String() string {
+func (amnt *MnyAmount) String() string {
 	floNum := float64(amnt.rawNum) / 100.0
 	return strconv.FormatFloat(floNum, 'f', 2, 64)
 }
 
-func (amnt *MoneyAmount) UnmarshalJSON(bytArr []byte) error {
+func (amnt *MnyAmount) UnmarshalJSON(bytArr []byte) error {
 	return amnt.unmarshalByteArr(bytArr)
 }
 
-func (amnt *MoneyAmount) MarshalJSON() ([]byte, error) {
+func (amnt *MnyAmount) MarshalJSON() ([]byte, error) {
 	return []byte(amnt.String()), nil
 }
 
-func (amnt *MoneyAmount) MarshalDynamoDBAttributeValue(av *dynamodb.AttributeValue) error {
+func (amnt *MnyAmount) MarshalDynamoDBAttributeValue(av *dynamodb.AttributeValue) error {
 	strNum := amnt.String()
 	av.N = &strNum
 	return nil
 }
 
-func (amnt *MoneyAmount) UnmarshalDynamoDBAttributeValue(av *dynamodb.AttributeValue) error {
+func (amnt *MnyAmount) UnmarshalDynamoDBAttributeValue(av *dynamodb.AttributeValue) error {
 	if av == nil {
 		return errors.New("Attribute value must not be null.")
 	}
@@ -53,7 +53,7 @@ func (amnt *MoneyAmount) UnmarshalDynamoDBAttributeValue(av *dynamodb.AttributeV
 	return amnt.unmarshalByteArr([]byte(*av.N))
 }
 
-func (amnt *MoneyAmount) unmarshalByteArr(bytArr []byte) error {
+func (amnt *MnyAmount) unmarshalByteArr(bytArr []byte) error {
 	if bytArr == nil {
 		return errors.New("Value must not be null.")
 	}

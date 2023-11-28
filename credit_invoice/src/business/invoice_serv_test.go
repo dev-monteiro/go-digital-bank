@@ -2,7 +2,9 @@ package business_test
 
 import (
 	comm "dev-monteiro/go-digital-bank/commons"
-	"dev-monteiro/go-digital-bank/commons/invostatus"
+	"dev-monteiro/go-digital-bank/commons/invstat"
+	"dev-monteiro/go-digital-bank/commons/ldate"
+	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 	mock_imp "dev-monteiro/go-digital-bank/credit-invoice/mock"
 	busn "dev-monteiro/go-digital-bank/credit-invoice/src/business"
 	conf "dev-monteiro/go-digital-bank/credit-invoice/src/configuration"
@@ -88,22 +90,22 @@ func TestInvoiceServ(t *testing.T) {
 			CustRepoError:  nil,
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 9, 30),
-					ActualDueDate: comm.NewLocalDate(2023, 10, 5),
-					Amount:        comm.NewMoneyAmount("999.99"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 9, 30),
+					ActualDueDate: ldate.NewLocDate(2023, 10, 5),
+					Amount:        mnyamnt.NewMnyAmount("999.99"),
 				},
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 10, 30),
-					ActualDueDate: comm.NewLocalDate(2023, 11, 6),
-					Amount:        comm.NewMoneyAmount("456.78"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 10, 30),
+					ActualDueDate: ldate.NewLocDate(2023, 11, 6),
+					Amount:        mnyamnt.NewMnyAmount("456.78"),
 				},
 				{
-					Status:        invostatus.OPEN,
-					ClosingDate:   comm.NewLocalDate(2023, 11, 30),
-					ActualDueDate: comm.NewLocalDate(2023, 12, 5),
-					Amount:        comm.NewMoneyAmount("123.45"),
+					Status:        invstat.OPEN,
+					ClosingDate:   ldate.NewLocDate(2023, 11, 30),
+					ActualDueDate: ldate.NewLocDate(2023, 12, 5),
+					Amount:        mnyamnt.NewMnyAmount("123.45"),
 				},
 			},
 			CoreBankConnError: nil,
@@ -123,22 +125,22 @@ func TestInvoiceServ(t *testing.T) {
 			CustRepoError:  nil,
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 9, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 9, 15),
-					Amount:        comm.NewMoneyAmount("888.88"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 9, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 9, 15),
+					Amount:        mnyamnt.NewMnyAmount("888.88"),
 				},
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 10, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 10, 16),
-					Amount:        comm.NewMoneyAmount("777.77"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 10, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 10, 16),
+					Amount:        mnyamnt.NewMnyAmount("777.77"),
 				},
 				{
-					Status:        invostatus.OPEN,
-					ClosingDate:   comm.NewLocalDate(2023, 11, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 11, 15),
-					Amount:        comm.NewMoneyAmount("100"),
+					Status:        invstat.OPEN,
+					ClosingDate:   ldate.NewLocDate(2023, 11, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 11, 15),
+					Amount:        mnyamnt.NewMnyAmount("100"),
 				},
 			},
 			CoreBankConnError: nil,
@@ -157,22 +159,22 @@ func TestInvoiceServ(t *testing.T) {
 			CustRepoError:  nil,
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 9, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 9, 15),
-					Amount:        comm.NewMoneyAmount("888.88"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 9, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 9, 15),
+					Amount:        mnyamnt.NewMnyAmount("888.88"),
 				},
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 10, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 10, 16),
-					Amount:        comm.NewMoneyAmount("777.77"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 10, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 10, 16),
+					Amount:        mnyamnt.NewMnyAmount("777.77"),
 				},
 				{
-					Status:        invostatus.OPEN,
-					ClosingDate:   comm.NewLocalDate(2023, 11, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 11, 15),
-					Amount:        comm.NewMoneyAmount("100"),
+					Status:        invstat.OPEN,
+					ClosingDate:   ldate.NewLocDate(2023, 11, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 11, 15),
+					Amount:        mnyamnt.NewMnyAmount("100"),
 				},
 			},
 			CoreBankConnError: nil,
@@ -192,28 +194,28 @@ func TestInvoiceServ(t *testing.T) {
 			CustRepoError:  nil,
 			CoreBankConnOutput: []comm.CoreBankInvoiceResp{
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 9, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 9, 15),
-					Amount:        comm.NewMoneyAmount("888.88"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 9, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 9, 15),
+					Amount:        mnyamnt.NewMnyAmount("888.88"),
 				},
 				{
-					Status:        invostatus.CLOSED,
-					ClosingDate:   comm.NewLocalDate(2023, 10, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 10, 16),
-					Amount:        comm.NewMoneyAmount("777.77"),
+					Status:        invstat.CLOSED,
+					ClosingDate:   ldate.NewLocDate(2023, 10, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 10, 16),
+					Amount:        mnyamnt.NewMnyAmount("777.77"),
 				},
 				{
-					Status:        invostatus.OPEN,
-					ClosingDate:   comm.NewLocalDate(2023, 11, 10),
-					ActualDueDate: comm.NewLocalDate(2023, 11, 15),
-					Amount:        comm.NewMoneyAmount("100"),
+					Status:        invstat.OPEN,
+					ClosingDate:   ldate.NewLocDate(2023, 11, 10),
+					ActualDueDate: ldate.NewLocDate(2023, 11, 15),
+					Amount:        mnyamnt.NewMnyAmount("100"),
 				},
 			},
 			CoreBankConnError: nil,
 			TranscRepoOutput: []data.Transaction{
-				{Amount: comm.NewMoneyAmount("13.4")},
-				{Amount: comm.NewMoneyAmount("10")},
+				{Amount: mnyamnt.NewMnyAmount("13.4")},
+				{Amount: mnyamnt.NewMnyAmount("10")},
 			},
 			TranscRepoError: nil,
 			ExpectedOutput: &busn.CurrInvoiceResp{

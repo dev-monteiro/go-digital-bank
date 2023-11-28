@@ -1,6 +1,8 @@
 package database
 
-import comm "dev-monteiro/go-digital-bank/commons"
+import (
+	"dev-monteiro/go-digital-bank/commons/mnyamnt"
+)
 
 type Customer struct {
 	Id              string
@@ -11,5 +13,5 @@ type Customer struct {
 type Transaction struct {
 	PurchaseId         int
 	CustomerCoreBankId int
-	Amount             *comm.MoneyAmount
+	Amount             *mnyamnt.MnyAmount
 }

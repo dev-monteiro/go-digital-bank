@@ -1,4 +1,4 @@
-package invostatus
+package invstat
 
 type InvoStatus string
 
