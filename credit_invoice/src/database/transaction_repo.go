@@ -12,9 +12,9 @@ import (
 )
 
 type TransactionRepo interface {
-	Save(transc Transaction) error
-	FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, error)
-	Delete(transc Transaction) error
+	Save(transc *Transaction) error
+	FindAllByCustomerCoreBankId(custCoreBankId int) ([]*Transaction, error)
+	Delete(transc *Transaction) error
 }
 
 type transactionRepo struct {
@@ -27,7 +27,7 @@ func NewTransactionRepo(dynaConn conn.DynamoConn) TransactionRepo {
 	return &transactionRepo{dynaConn: dynaConn, tableName: tableName}
 }
 
-func (repo *transactionRepo) Save(transc Transaction) error {
+func (repo *transactionRepo) Save(transc *Transaction) error {
 	log.Println("[TransactionRepo] Save")
 
 	item, err := dynamodbattribute.MarshalMap(transc)
@@ -47,7 +47,7 @@ func (repo *transactionRepo) Save(transc Transaction) error {
 	return nil
 }
 
-func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]Transaction, error) {
+func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]*Transaction, error) {
 	log.Println("[TransactionRepo] FindAllByCustomerCoreBankId")
 
 	dynaInput := &dynamodb.QueryInput{
@@ -64,7 +64,7 @@ func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]
 		return nil, err
 	}
 
-	var transactions []Transaction
+	var transactions []*Transaction
 	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &transactions)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (repo *transactionRepo) FindAllByCustomerCoreBankId(custCoreBankId int) ([]
 	return transactions, nil
 }
 
-func (repo *transactionRepo) Delete(transc Transaction) error {
+func (repo *transactionRepo) Delete(transc *Transaction) error {
 	log.Println("[TransactionRepo] Delete")
 
 	input := &dynamodb.DeleteItemInput{

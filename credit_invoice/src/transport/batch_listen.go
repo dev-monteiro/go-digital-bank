@@ -24,7 +24,7 @@ func (listen *batchListen) getQueueNameEnv() string {
 }
 
 func (listen *batchListen) process(event comm.BatchEvent) {
-	err := listen.transcServ.ClearByBatch(event)
+	err := listen.transcServ.ClearByBatch(&event)
 	if err != nil {
 		log.Println("[BatchListen] Error: " + err.Message)
 	}

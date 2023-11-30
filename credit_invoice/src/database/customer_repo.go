@@ -13,7 +13,7 @@ import (
 
 type CustomerRepo interface {
 	FindById(id string) (*Customer, error)
-	FindAllByCoreBankBatchId(coreBankBatchId int) ([]Customer, error)
+	FindAllByCoreBankBatchId(coreBankBatchId int) ([]*Customer, error)
 }
 
 type customerRepo struct {
@@ -56,7 +56,7 @@ func (repo *customerRepo) FindById(id string) (*Customer, error) {
 	return &cust, nil
 }
 
-func (repo *customerRepo) FindAllByCoreBankBatchId(coreBankBatchId int) ([]Customer, error) {
+func (repo *customerRepo) FindAllByCoreBankBatchId(coreBankBatchId int) ([]*Customer, error) {
 	log.Println("[CustomerRepo] FindAllByCoreBankBatchId")
 
 	dynaInput := &dynamodb.QueryInput{
@@ -73,7 +73,7 @@ func (repo *customerRepo) FindAllByCoreBankBatchId(coreBankBatchId int) ([]Custo
 		return nil, err
 	}
 
-	var customers []Customer
+	var customers []*Customer
 	err = dynamodbattribute.UnmarshalListOfMaps(dynaOutput.Items, &customers)
 	if err != nil {
 		return nil, err

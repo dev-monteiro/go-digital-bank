@@ -24,7 +24,7 @@ func (listen *purchaseListen) getQueueNameEnv() string {
 }
 
 func (listen *purchaseListen) process(event comm.PurchaseEvent) {
-	err := listen.transcServ.CreateFromPurchase(event)
+	err := listen.transcServ.CreateFromPurchase(&event)
 	if err != nil {
 		log.Println("[PurchaseListen] Error: " + err.Message)
 	}

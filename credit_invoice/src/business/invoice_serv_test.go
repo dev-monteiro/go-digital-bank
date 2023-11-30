@@ -19,23 +19,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type testData struct {
-	Name               string
-	Input              string
-	CustRepoOutput     *data.Customer
-	CustRepoError      error
-	CoreBankConnOutput []comm.CoreBankInvoiceResp
-	CoreBankConnError  error
-	TranscRepoOutput   []data.Transaction
-	TranscRepoError    error
-	ExpectedOutput     *busn.CurrInvoiceResp
-	ExpectedError      *conf.AppError
-}
-
-func TestInvoiceServ(t *testing.T) {
+func TestInvoiceServ_GetCurrInvoice(t *testing.T) {
 	monkey.Patch(time.Now, func() time.Time {
 		return time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC)
 	})
+
+	type testData struct {
+		Name               string
+		Input              string
+		CustRepoOutput     *data.Customer
+		CustRepoError      error
+		CoreBankConnOutput []comm.CoreBankInvoiceResp
+		CoreBankConnError  error
+		TranscRepoOutput   []*data.Transaction
+		TranscRepoError    error
+		ExpectedOutput     *busn.CurrInvoiceResp
+		ExpectedError      *conf.AppError
+	}
 
 	tests := []testData{
 		{
@@ -178,7 +178,7 @@ func TestInvoiceServ(t *testing.T) {
 				},
 			},
 			CoreBankConnError: nil,
-			TranscRepoOutput:  []data.Transaction{},
+			TranscRepoOutput:  []*data.Transaction{},
 			TranscRepoError:   nil,
 			ExpectedOutput: &busn.CurrInvoiceResp{
 				StatusLabel:    "Open",
@@ -213,7 +213,7 @@ func TestInvoiceServ(t *testing.T) {
 				},
 			},
 			CoreBankConnError: nil,
-			TranscRepoOutput: []data.Transaction{
+			TranscRepoOutput: []*data.Transaction{
 				{Amount: mnyamnt.NewMnyAmount("13.4")},
 				{Amount: mnyamnt.NewMnyAmount("10")},
 			},

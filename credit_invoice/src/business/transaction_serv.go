@@ -8,8 +8,8 @@ import (
 )
 
 type TransactionServ interface {
-	CreateFromPurchase(purchase comm.PurchaseEvent) *conf.AppError
-	ClearByBatch(batch comm.BatchEvent) *conf.AppError
+	CreateFromPurchase(purchase *comm.PurchaseEvent) *conf.AppError
+	ClearByBatch(batch *comm.BatchEvent) *conf.AppError
 }
 
 type transactionServ struct {
@@ -24,10 +24,10 @@ func NewTransactionServ(custRepo data.CustomerRepo, transcRepo data.TransactionR
 	}
 }
 
-func (serv *transactionServ) CreateFromPurchase(purchase comm.PurchaseEvent) *conf.AppError {
+func (serv *transactionServ) CreateFromPurchase(purchase *comm.PurchaseEvent) *conf.AppError {
 	log.Println("[TransactionServ] CreateFromPurchase")
 
-	transc := data.Transaction{
+	transc := &data.Transaction{
 		PurchaseId:         purchase.Id,
 		CustomerCoreBankId: purchase.CustomerId,
 		Amount:             purchase.Amount,
@@ -41,7 +41,7 @@ func (serv *transactionServ) CreateFromPurchase(purchase comm.PurchaseEvent) *co
 	return nil
 }
 
-func (serv *transactionServ) ClearByBatch(batch comm.BatchEvent) *conf.AppError {
+func (serv *transactionServ) ClearByBatch(batch *comm.BatchEvent) *conf.AppError {
 	log.Println("[TransactionServ] ClearByBatch")
 
 	custArr, err := serv.custRepo.FindAllByCoreBankBatchId(batch.Id)
