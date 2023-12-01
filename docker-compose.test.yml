@@ -1,0 +1,7 @@
+services:
+  credit_invoice:
+    build:
+      target: test
+  core_banking_mock:
+    build:
+      target: test

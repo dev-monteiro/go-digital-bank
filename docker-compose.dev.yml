@@ -1,0 +1,13 @@
+services:
+  credit_invoice:
+    build:
+      target: dev
+    volumes:
+      - ./credit_invoice/src:/home/credit_invoice/src
+      - ./commons:/home/commons
+  core_banking_mock:
+    build:
+      target: dev
+    volumes:
+      - ./core_banking_mock/src:/home/core_banking_mock/src
+      - ./commons:/home/commons
