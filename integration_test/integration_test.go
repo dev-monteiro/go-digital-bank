@@ -181,7 +181,7 @@ func triggerBatch(t *testing.T) {
 		return
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 }
 
 func onError(t *testing.T, err error) {
