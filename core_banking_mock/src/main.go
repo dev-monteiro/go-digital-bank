@@ -7,6 +7,7 @@ import (
 	"dev-monteiro/go-digital-bank/commons/ldatetime"
 	"dev-monteiro/go-digital-bank/commons/mnyamnt"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -152,11 +153,23 @@ func genClosingDate(closingDay int) *ldate.LocDate {
 func createPurchase(resWr http.ResponseWriter, req *http.Request) {
 	log.Println("[Mock] CreatePurchase")
 
+	type purchaseReq struct {
+		CustId int
+		Amount float64
+	}
+
+	var purchReq purchaseReq
+	err := json.NewDecoder(req.Body).Decode(&purchReq)
+	if err != nil {
+		fmt.Println(err)
+	}
+	log.Printf("[Mock] CreatePurchase: %v", purchReq)
+
 	purchase := comm.PurchaseEvent{
 		Id:                  data.random.Intn(10000),
 		CustomerId:          123,
 		DateTime:            ldatetime.Now(),
-		Amount:              mnyamnt.NewMnyAmount(strconv.FormatFloat(float64(data.random.Intn(10000))/100.0, 'f', 2, 64)),
+		Amount:              mnyamnt.NewMnyAmount(strconv.FormatFloat(purchReq.Amount, 'f', 2, 64)),
 		NumInstallments:     1,
 		MerchantDescription: "Acme Mall",
 		Status:              "APPROVED",
