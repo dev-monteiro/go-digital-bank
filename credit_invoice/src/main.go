@@ -35,7 +35,9 @@ func setupComponents() {
 	setupWithRetry(func() (tran.Listen[comm.BatchEvent], error) {
 		return tran.NewBatchListen(sqsConn, transcServ)
 	})
+
 	tran.NewInvoiceCont(invoServ)
+	tran.NewHealthCont()
 
 	log.Println("[Main] Setup completed!")
 }

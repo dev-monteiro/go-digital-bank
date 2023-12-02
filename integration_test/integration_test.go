@@ -1,4 +1,4 @@
-package system_test
+package integration_test
 
 import (
 	"bytes"
@@ -30,6 +30,18 @@ type coreBankInvoiceListResp struct {
 }
 
 func TestSystem(t *testing.T) {
+	fmt.Println("----------------------------")
+
+	for {
+		time.Sleep(5 * time.Second)
+		if isSystemReady() {
+			break
+		} else {
+			fmt.Println("waiting for system to be ready...")
+		}
+	}
+
+	fmt.Println("----------------------------")
 	fmt.Println("Init")
 
 	cbInvoResp := getCoreBankInvoice(t, 123)
@@ -96,6 +108,17 @@ func TestSystem(t *testing.T) {
 	})
 
 	fmt.Println("OK")
+}
+
+func isSystemReady() bool {
+	url := "http://localhost:8080/health"
+
+	httpResp, err := http.Get(url)
+	if err != nil {
+		return false
+	}
+
+	return httpResp.StatusCode == 200
 }
 
 func getCoreBankInvoice(t *testing.T, cbCustId int) *coreBankInvoiceResp {

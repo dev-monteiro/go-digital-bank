@@ -4,5 +4,5 @@ use (
 	./commons
 	./core_banking_mock
 	./credit_invoice
-	./system_test
+	./integration_test
 )
